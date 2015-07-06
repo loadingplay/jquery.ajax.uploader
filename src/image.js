@@ -6,6 +6,7 @@ var LPImage = function(data)
     this.url = "";
     this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
+    this.uploadurl = data.uploadurl === undefined ? "/" : data.uploadurl;
 
     this.percentComplete = 0;
 };
@@ -21,7 +22,7 @@ LPImage.prototype.upload = function()
         };
 
     $.ajax({
-        url : "/", 
+        url : this.uploadurl, 
         method : "POST",
         cache : false,
         data : data,

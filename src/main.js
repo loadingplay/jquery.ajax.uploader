@@ -3,8 +3,15 @@
     // Create the defaults once
     var pluginName = 'fileuploader';
 
-    $.fn[pluginName] = function ( options ) 
+    $.fn[pluginName] = function ( settings ) 
     {
+
+        var set = {
+            uploadurl : "/"
+        };
+
+        var options = $.extend( {}, set, settings );
+
         return this.each(function () {
             if (!$.data(this, 'plugin_' + pluginName)) 
             {
@@ -37,6 +44,7 @@ FileUploader.prototype.addImage = function(name, size, data)
             name : name,
             size : size,
             data : data,
+            uploadurl : this.options.uploadurl,
             onprogress : function(percent)
             {
                 self.view.updateView(self.model.indexOf(img), percent);
