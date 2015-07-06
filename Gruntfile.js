@@ -36,10 +36,19 @@ module.exports = function(grunt)
                 files: ['css/**/*.css'],
                 tasks: ['concat']
             }
+        },
+
+        uglify: {
+            my_target: {
+                files: {
+                    'dist/fileuploader.min.js': ['src/**/*.js']
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('default', ['concat', 'watch']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['concat', 'uglify', 'watch']);
 };
