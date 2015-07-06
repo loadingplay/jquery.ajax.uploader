@@ -1,0 +1,64 @@
+/**
+ * reset css
+ */
+.imgup *
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: left;
+}
+
+.imgup>ul>li
+{
+    display: block;
+    border: gray solid 1px;
+    float: left;
+    width: 90px;
+    height: 90px;
+    overflow: hidden;
+    position: relative;
+    margin-left: 5px;
+}
+
+.imgup>ul>li>.img-container
+{
+    max-height: 100%;  
+    max-width: 100%; 
+    width: auto;
+    position: absolute;  
+    top: 0;  
+    bottom: 0;  
+    left: 0;  
+    right: 0;  
+    margin: auto;
+}
+
+.imgup>ul>li>.img-container>.imgup-image
+{
+    max-height: 100%;  
+    max-width: 100%; 
+    width: auto;
+    position: absolute;  
+    top: 0;  
+    bottom: 0;  
+    left: 0;  
+    right: 0;  
+    margin: auto;
+}
+
+.imgup>ul>li>.imgup-add-input
+{
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0;
+}
+
+
+.imgup-progress
+{
+    height: 100%;
+    background: black;
+    opacity: 0.3;
+}
