@@ -15,6 +15,8 @@
 
 module.exports = function(grunt)
 {
+    require('load-grunt-tasks')(grunt);
+
     grunt.initConfig({
         concat: {
             js: {
@@ -44,11 +46,29 @@ module.exports = function(grunt)
                     'dist/fileuploader.min.js': ['src/**/*.js']
                 }
             }
+        },
+
+        shell: {
+            options: {
+                stderr: false
+            },
+            target: {
+                command: 'cd sample && python server.py &'
+            }
         }
+
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.registerTask('default', ['concat', 'uglify', 'watch']);
+
+    grunt.registerTask('server', function()
+        {
+            setTimeout(function() 
+            {
+                grunt.task.run('shell');
+            }, 10);
+        });
+    grunt.registerTask('default', ['concat', 'server', 'uglify', 'watch']);
 };
