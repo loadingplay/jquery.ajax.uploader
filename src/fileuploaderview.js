@@ -1,3 +1,28 @@
+var FileUploaderTemplates = 
+{
+    "imgup-template" : ' \
+        <div class="imgup"> \
+            <ul> \
+            </ul> \
+        </div>',
+
+    "imgup-image-template" : ' \
+        <li> \
+            <div class="img-container" > \
+                <img src="" class="imgup-image" /> \
+                <div class="imgup-progress" > \
+                    <div class="imgup-progress-bar" ></div> \
+                </div> \
+            </div> \
+        </li>',
+
+    "imgup-image-add-template" : ' \
+        <li class="imgup-add-input-container" > \
+            <input type="file" class="imgup-add-input" multiple="multiple" /> \
+        </li>'
+}
+
+
 
 var FileUploaderView = function(controller)
 {
@@ -20,8 +45,12 @@ FileUploaderView.prototype.init = function()
     $input.attr("type", "text");
     $input.after("<div class='imageuploader-container' ></div>");
     this.render();
+};
 
-    $(document).change(".imgup-add-input", function(evt)
+FileUploaderView.prototype.addInputEvent = function($input) 
+{
+    var self = this;
+    $input.change(function(evt)
     {
         self.addFiles(evt.target.files);
     });
@@ -57,9 +86,9 @@ FileUploaderView.prototype.addImage = function(file)
 
 FileUploaderView.prototype.loadTemplates = function() 
 {
-    this.main_template = $(".imgup-template").html();
-    this.img_template = $(".imgup-image-template").html();
-    this.add_img_template = $(".imgup-image-add-template").html();
+    this.main_template = FileUploaderTemplates['imgup-template'];
+    this.img_template = FileUploaderTemplates['imgup-image-template'];
+    this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
 };
 
 
@@ -86,6 +115,7 @@ FileUploaderView.prototype.render = function()
 
         // return $main_temp;
         $(".imageuploader-container").html($main_temp);
+        self.addInputEvent( $(".imgup-add-input", $main_temp) );
     }, 10);
 };
 
