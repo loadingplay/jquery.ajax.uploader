@@ -5,8 +5,18 @@
     var methods = {
         isready : function(options)
         {
-            console.log(this);
-            return $.data(this, "plugin_" + pluginName);
+            var ready = true;
+            this.each(function()
+                {
+                    var file_uploader = $.data(this, "plugin_" + pluginName);
+
+                    if (!file_uploader.isready())
+                    {
+                        ready = false;
+                    }
+                });
+
+            return ready;
         }
     };
 
