@@ -192,17 +192,34 @@ LPImage.prototype.upload = function()
 
     // Create the defaults once
     var pluginName = 'fileuploader';
+    var methods = {
+        isready : function(options)
+        {
+            console.log(this);
+            return $.data(this, "plugin_" + pluginName);
+        }
+    };
 
-    $.fn[pluginName] = function ( settings ) 
+    $.fn[pluginName] = function ( method_or_settings, settings ) 
     {
 
         var set = {
             uploadurl : "/"
         };
 
+        if (methods[method_or_settings])
+        {
+            return methods[method_or_settings].call(this, settings);
+        }
+        else
+        {
+            var settings = method_or_settings;
+        }
+
         var options = $.extend( {}, set, settings );
 
-        return this.each(function () {
+        return this.each(function () 
+        {
             if (!$.data(this, 'plugin_' + pluginName)) 
             {
                 $.data(this, 'plugin_' + pluginName, 
@@ -273,6 +290,20 @@ FileUploader.prototype.getImageList = function()
 FileUploader.prototype.getInput = function() 
 {
     return this.$obj;
+};
+
+FileUploader.prototype.isready = function() 
+{
+    for (var i = 0; i < this.model.length; i++) 
+    {
+        var uploaded = this.model[i].percentComplete == 100;
+        if (!uploaded)
+        {
+            return false;
+        }
+    };
+
+    return true;
 };
 
 FileUploader.prototype.getImagesURL = function() 
