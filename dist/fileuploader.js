@@ -64,7 +64,6 @@ FileUploader.prototype.isready = function()
 {
     for (var i = 0; i < this.model.length; i++) 
     {
-        console.log(this.model[i].percentComplete);
         var uploaded = (this.model[i].percentComplete == 100);
         if (!uploaded)
         {
@@ -261,10 +260,14 @@ LPImage.prototype.upload = function()
                 "progress", 
                 function (evt) 
                 {
-                    console.log(evt);
                     if (evt.lengthComputable) 
                     {
                         self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                        self.onprogress(self.percentComplete);
+                    }
+                    else
+                    {
+                        self.percentComplete = 100;
                         self.onprogress(self.percentComplete);
                     }
                 }, false);
