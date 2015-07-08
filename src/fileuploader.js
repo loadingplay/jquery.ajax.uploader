@@ -40,8 +40,8 @@ FileUploader.prototype.addImage = function(name, size, data)
 
 FileUploader.prototype.isImage = function(name) 
 {
-    if (name.indexOf(".jpg") != -1 ||
-        name.indexOf(".png") != -1)
+    if (name.toLowerCase().indexOf(".jpg") != -1 ||
+        name.toLowerCase().indexOf(".png") != -1)
     {
         return true;
     }
