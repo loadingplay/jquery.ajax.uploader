@@ -261,6 +261,7 @@ LPImage.prototype.upload = function()
                 "progress", 
                 function (evt) 
                 {
+                    console.log(evt);
                     if (evt.lengthComputable) 
                     {
                         self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
