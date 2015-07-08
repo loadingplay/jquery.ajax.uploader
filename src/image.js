@@ -34,10 +34,14 @@ LPImage.prototype.upload = function()
                 "progress", 
                 function (evt) 
                 {
-                    console.log(evt);
                     if (evt.lengthComputable) 
                     {
                         self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                        self.onprogress(self.percentComplete);
+                    }
+                    else
+                    {
+                        self.percentComplete = 100;
                         self.onprogress(self.percentComplete);
                     }
                 }, false);

@@ -64,7 +64,6 @@ FileUploader.prototype.isready = function()
 {
     for (var i = 0; i < this.model.length; i++) 
     {
-        console.log(this.model[i].percentComplete);
         var uploaded = (this.model[i].percentComplete == 100);
         if (!uploaded)
         {
