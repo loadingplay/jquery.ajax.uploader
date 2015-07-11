@@ -1,3 +1,6 @@
+/*global FileUploaderView: true*/
+/*global LPImage: true*/
+'use strict';
 
 var FileUploader = function(obj, options)
 {
@@ -8,7 +11,7 @@ var FileUploader = function(obj, options)
 
     this.view = new FileUploaderView(this);
     this.view.init();
-}
+};
 
 FileUploader.prototype.addImage = function(name, size, data) 
 {
@@ -40,8 +43,8 @@ FileUploader.prototype.addImage = function(name, size, data)
 
 FileUploader.prototype.isImage = function(name) 
 {
-    if (name.toLowerCase().indexOf(".jpg") != -1 ||
-        name.toLowerCase().indexOf(".png") != -1)
+    if (name.toLowerCase().indexOf('.jpg') != -1 ||
+        name.toLowerCase().indexOf('.png') != -1)
     {
         return true;
     }
@@ -69,7 +72,7 @@ FileUploader.prototype.isready = function()
         {
             return false;
         }
-    };
+    }
 
     return true;
 };
@@ -81,19 +84,21 @@ FileUploader.prototype.getImagesURL = function()
     {
         var image = this.model[i];
         urls.push(image.url);
-    };
+    }
 
     return urls;
 };
+'use strict';
+
 var FileUploaderTemplates = 
 {
-    "imgup-template" : ' \
+    'imgup-template' : ' \
         <div class="imgup"> \
             <ul> \
             </ul> \
         </div>',
 
-    "imgup-image-template" : ' \
+    'imgup-image-template' : ' \
         <li> \
             <div class="img-container" > \
                 <img src="" class="imgup-image" /> \
@@ -103,34 +108,31 @@ var FileUploaderTemplates =
             </div> \
         </li>',
 
-    "imgup-image-add-template" : ' \
+    'imgup-image-add-template' : ' \
         <li class="imgup-add-input-container" > \
             <input type="file" class="imgup-add-input" multiple="multiple" /> \
         </li>'
-}
-
-
+};
 
 var FileUploaderView = function(controller)
 {
     this.controller = controller;
-    this.main_template = "";
-    this.img_template = "";
-    this.add_img_template = "";
+    this.main_template = '';
+    this.img_template = '';
+    this.add_img_template = '';
 
     this.loadTemplates();
-}
+};
 
 
 FileUploaderView.prototype.init = function() 
 {
     // hide obj
-    var self = this;
     var $input = this.controller.getInput();
 
-    $input.css("visibility", "hidden");
-    $input.attr("type", "text");
-    $input.after("<div class='imageuploader-container' ></div>");
+    $input.css('visibility', 'hidden');
+    $input.attr('type', 'text');
+    $input.after('<div class="imageuploader-container" ></div>');
     this.render();
 };
 
@@ -165,7 +167,7 @@ FileUploaderView.prototype.addImage = function(file)
     {
         self.controller.addImage(name, size, e.target.result);
         self.render();
-    }
+    };
 
     reader.readAsDataURL(file);
 };
@@ -194,27 +196,27 @@ FileUploaderView.prototype.render = function()
 
             self.applyPercent($image_temp, image.percentComplete);
 
-            $(".imgup-image", $image_temp).attr("src", image.data);
-            $("ul", $main_temp).append($image_temp);
+            // $(".imgup-image", $image_temp).attr("src", image.data);
+            $('ul', $main_temp).append($image_temp);
         }
 
-        $("ul", $main_temp).append(self.add_img_template);
+        $('ul', $main_temp).append(self.add_img_template);
 
         // return $main_temp;
-        $(".imageuploader-container").html($main_temp);
-        self.addInputEvent( $(".imgup-add-input", $main_temp) );
+        $('.imageuploader-container').html($main_temp);
+        self.addInputEvent( $('.imgup-add-input', $main_temp) );
     }, 10);
 };
 
 
 FileUploaderView.prototype.updateView = function(index, percent) 
 {
-    this.applyPercent($(".imgup>ul li:nth-child("+ index +")"), percent);
+    this.applyPercent($('.imgup>ul li:nth-child('+ index +')'), percent);
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
 {
-    $(".imgup-progress", $el).css("height", (100 - percent) + "px");
+    $('.imgup-progress', $el).css('height', (100 - percent) + 'px');
 };
 
 FileUploaderView.prototype.updateurl = function() 
@@ -224,15 +226,17 @@ FileUploaderView.prototype.updateurl = function()
 
     $input.val(urls);
 };
+'use strict';
+
 var LPImage = function(data)
 {
-    this.name = data.name === undefined ? "" : data.name;
-    this.size = data.size === undefined ? "" : data.size;
-    this.data = data.data === undefined ? "" : data.data;
-    this.url = "";
+    this.name = data.name === undefined ? '' : data.name;
+    this.size = data.size === undefined ? '' : data.size;
+    this.data = data.data === undefined ? '' : data.data;
+    this.url = '';
     this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
-    this.uploadurl = data.uploadurl === undefined ? "/" : data.uploadurl;
+    this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
 
     this.percentComplete = 0;
 };
@@ -242,14 +246,14 @@ LPImage.prototype.upload = function()
 {
     var self = this;
     var data = {
-            "name" : this.name,
-            "size" : this.size,
-            "data" : this.data
+            'name' : this.name,
+            'size' : this.size,
+            'data' : this.data
         };
 
     $.ajax({
         url : this.uploadurl, 
-        method : "POST",
+        method : 'POST',
         cache : false,
         data : data,
         xhr : function()
@@ -257,7 +261,7 @@ LPImage.prototype.upload = function()
             var xhr = new window.XMLHttpRequest();
             //Download progress
             xhr.addEventListener(
-                "progress", 
+                'progress', 
                 function (evt) 
                 {
                     if (evt.lengthComputable) 
@@ -280,17 +284,20 @@ LPImage.prototype.upload = function()
             self.onupdateurl();
         });
 };
+/*global FileUploader:true*/
+'use strict';
+
 (function ( $, window, document, undefined ) {
 
     // Create the defaults once
     var pluginName = 'fileuploader';
     var methods = {
-        isready : function(options)
+        isready : function()
         {
             var ready = true;
             this.each(function()
                 {
-                    var file_uploader = $.data(this, "plugin_" + pluginName);
+                    var file_uploader = $.data(this, 'plugin_' + pluginName);
 
                     if (!file_uploader.isready())
                     {
@@ -306,7 +313,7 @@ LPImage.prototype.upload = function()
     {
 
         var set = {
-            uploadurl : "/"
+            uploadurl : '/'
         };
 
         if (methods[method_or_settings])
@@ -315,7 +322,7 @@ LPImage.prototype.upload = function()
         }
         else
         {
-            var settings = method_or_settings;
+            settings = method_or_settings;
         }
 
         var options = $.extend( {}, set, settings );

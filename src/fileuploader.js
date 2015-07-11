@@ -1,3 +1,6 @@
+/*global FileUploaderView: true*/
+/*global LPImage: true*/
+'use strict';
 
 var FileUploader = function(obj, options)
 {
@@ -8,7 +11,7 @@ var FileUploader = function(obj, options)
 
     this.view = new FileUploaderView(this);
     this.view.init();
-}
+};
 
 FileUploader.prototype.addImage = function(name, size, data) 
 {
@@ -40,8 +43,8 @@ FileUploader.prototype.addImage = function(name, size, data)
 
 FileUploader.prototype.isImage = function(name) 
 {
-    if (name.toLowerCase().indexOf(".jpg") != -1 ||
-        name.toLowerCase().indexOf(".png") != -1)
+    if (name.toLowerCase().indexOf('.jpg') != -1 ||
+        name.toLowerCase().indexOf('.png') != -1)
     {
         return true;
     }
@@ -69,7 +72,7 @@ FileUploader.prototype.isready = function()
         {
             return false;
         }
-    };
+    }
 
     return true;
 };
@@ -81,7 +84,7 @@ FileUploader.prototype.getImagesURL = function()
     {
         var image = this.model[i];
         urls.push(image.url);
-    };
+    }
 
     return urls;
 };

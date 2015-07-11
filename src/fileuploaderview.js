@@ -1,12 +1,14 @@
+'use strict';
+
 var FileUploaderTemplates = 
 {
-    "imgup-template" : ' \
+    'imgup-template' : ' \
         <div class="imgup"> \
             <ul> \
             </ul> \
         </div>',
 
-    "imgup-image-template" : ' \
+    'imgup-image-template' : ' \
         <li> \
             <div class="img-container" > \
                 <img src="" class="imgup-image" /> \
@@ -16,34 +18,31 @@ var FileUploaderTemplates =
             </div> \
         </li>',
 
-    "imgup-image-add-template" : ' \
+    'imgup-image-add-template' : ' \
         <li class="imgup-add-input-container" > \
             <input type="file" class="imgup-add-input" multiple="multiple" /> \
         </li>'
-}
-
-
+};
 
 var FileUploaderView = function(controller)
 {
     this.controller = controller;
-    this.main_template = "";
-    this.img_template = "";
-    this.add_img_template = "";
+    this.main_template = '';
+    this.img_template = '';
+    this.add_img_template = '';
 
     this.loadTemplates();
-}
+};
 
 
 FileUploaderView.prototype.init = function() 
 {
     // hide obj
-    var self = this;
     var $input = this.controller.getInput();
 
-    $input.css("visibility", "hidden");
-    $input.attr("type", "text");
-    $input.after("<div class='imageuploader-container' ></div>");
+    $input.css('visibility', 'hidden');
+    $input.attr('type', 'text');
+    $input.after('<div class="imageuploader-container" ></div>');
     this.render();
 };
 
@@ -78,7 +77,7 @@ FileUploaderView.prototype.addImage = function(file)
     {
         self.controller.addImage(name, size, e.target.result);
         self.render();
-    }
+    };
 
     reader.readAsDataURL(file);
 };
@@ -107,27 +106,27 @@ FileUploaderView.prototype.render = function()
 
             self.applyPercent($image_temp, image.percentComplete);
 
-            $(".imgup-image", $image_temp).attr("src", image.data);
-            $("ul", $main_temp).append($image_temp);
+            // $(".imgup-image", $image_temp).attr("src", image.data);
+            $('ul', $main_temp).append($image_temp);
         }
 
-        $("ul", $main_temp).append(self.add_img_template);
+        $('ul', $main_temp).append(self.add_img_template);
 
         // return $main_temp;
-        $(".imageuploader-container").html($main_temp);
-        self.addInputEvent( $(".imgup-add-input", $main_temp) );
+        $('.imageuploader-container').html($main_temp);
+        self.addInputEvent( $('.imgup-add-input', $main_temp) );
     }, 10);
 };
 
 
 FileUploaderView.prototype.updateView = function(index, percent) 
 {
-    this.applyPercent($(".imgup>ul li:nth-child("+ index +")"), percent);
+    this.applyPercent($('.imgup>ul li:nth-child('+ index +')'), percent);
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
 {
-    $(".imgup-progress", $el).css("height", (100 - percent) + "px");
+    $('.imgup-progress', $el).css('height', (100 - percent) + 'px');
 };
 
 FileUploaderView.prototype.updateurl = function() 

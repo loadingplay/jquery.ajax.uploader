@@ -1,14 +1,17 @@
+/*global FileUploader:true*/
+'use strict';
+
 (function ( $, window, document, undefined ) {
 
     // Create the defaults once
     var pluginName = 'fileuploader';
     var methods = {
-        isready : function(options)
+        isready : function()
         {
             var ready = true;
             this.each(function()
                 {
-                    var file_uploader = $.data(this, "plugin_" + pluginName);
+                    var file_uploader = $.data(this, 'plugin_' + pluginName);
 
                     if (!file_uploader.isready())
                     {
@@ -24,7 +27,7 @@
     {
 
         var set = {
-            uploadurl : "/"
+            uploadurl : '/'
         };
 
         if (methods[method_or_settings])
@@ -33,7 +36,7 @@
         }
         else
         {
-            var settings = method_or_settings;
+            settings = method_or_settings;
         }
 
         var options = $.extend( {}, set, settings );

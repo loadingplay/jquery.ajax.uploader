@@ -1,12 +1,14 @@
+'use strict';
+
 var LPImage = function(data)
 {
-    this.name = data.name === undefined ? "" : data.name;
-    this.size = data.size === undefined ? "" : data.size;
-    this.data = data.data === undefined ? "" : data.data;
-    this.url = "";
+    this.name = data.name === undefined ? '' : data.name;
+    this.size = data.size === undefined ? '' : data.size;
+    this.data = data.data === undefined ? '' : data.data;
+    this.url = '';
     this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
-    this.uploadurl = data.uploadurl === undefined ? "/" : data.uploadurl;
+    this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
 
     this.percentComplete = 0;
 };
@@ -16,14 +18,14 @@ LPImage.prototype.upload = function()
 {
     var self = this;
     var data = {
-            "name" : this.name,
-            "size" : this.size,
-            "data" : this.data
+            'name' : this.name,
+            'size' : this.size,
+            'data' : this.data
         };
 
     $.ajax({
         url : this.uploadurl, 
-        method : "POST",
+        method : 'POST',
         cache : false,
         data : data,
         xhr : function()
@@ -31,7 +33,7 @@ LPImage.prototype.upload = function()
             var xhr = new window.XMLHttpRequest();
             //Download progress
             xhr.addEventListener(
-                "progress", 
+                'progress', 
                 function (evt) 
                 {
                     if (evt.lengthComputable) 
