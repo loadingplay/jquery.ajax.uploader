@@ -188,7 +188,7 @@ LPImage.prototype.upload = function(callback)
     var data = new FormData();
     data.append('name', this.name);
     data.append('size', this.size);
-    data.append('data', generateBlob(this.data, 'text/plain', 32));
+    data.append('data', this.generateBlob(this.data, 'text/plain', 32));
 
     var self = this;
 
