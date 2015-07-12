@@ -34,6 +34,8 @@ var FileUploaderView = function(controller)
     this.$main_template = undefined;
 
     this.loadTemplates();
+    this.thumbs_loading = [];
+    this.is_loading = false;
 };
 
 
@@ -109,23 +111,57 @@ FileUploaderView.prototype.updateThumbProgress = function(index, percent)
     this.applyPercent(this.$images[index], percent);
 };
 
-FileUploaderView.prototype.showThumb = function(index, data, callback) 
+FileUploaderView.prototype.imageDataLoaded = function(index) 
+{
+    $('.imgup-progress-bar', this.$images[index]).css('opacity', 1);
+    $('.imgup-progress-bar', this.$images[index]).css('width', 0);
+};
+
+FileUploaderView.prototype.showThumb = function(index, url) 
 {
     var self = this;
 
-    setTimeout(function()
-    {
-        var $img = $('img', self.$images[index]);
+    this.thumbs_loading.push({ 
+        'img' : $('img', self.$images[index]), 
+        'url' : url,
+        'index' : index
+    });
+    this.loadingThumbgs();
 
-        $img.load(function()
+    // this.thumbs_loading = [];
+    // this.is_loading = false;
+};
+
+
+FileUploaderView.prototype.loadingThumbgs = function()
+{
+    if (this.is_loading)
+        return;
+
+    var self = this;
+
+    if (this.thumbs_loading.length > 0)
+    {
+        var thumb = this.thumbs_loading.shift();
+        setTimeout(function()
         {
-            setTimeout(function()
+            var img = thumb.img.clone();
+
+            img.load(function()
             {
-                callback();
-            }, 10);
-        });
-        $img.attr('src', data);
-    }, 10);
+                thumb.img.replaceWith(img);
+
+                // this.is_loading = false;
+                self.loadingThumbgs();
+            });
+            img.attr('src', thumb.url);
+
+        }, 500);
+
+        return;
+    }
+
+    this.is_loading = false;
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
@@ -133,7 +169,7 @@ FileUploaderView.prototype.applyPercent = function($el, percent)
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
-FileUploaderView.prototype.updateurl = function() 
+FileUploaderView.prototype.updateurl = function(index, url) 
 {
     var urls = this.controller.getImagesURL();
     var $input = this.controller.getInput();

@@ -1,11 +1,13 @@
 /*global FileUploaderView: true*/
 /*global LPImage: true*/
+/*global Waterfall: true*/
 'use strict';
 
 var FileUploader = function(obj, options)
 {
     this.$obj = $(obj);
     this.options = options;
+    this.waterfall = new Waterfall();
 
     this.model = [];
 
@@ -30,24 +32,19 @@ FileUploader.prototype.addImage = function(file)
             {
                 self.view.updateThumbProgress(self.model.indexOf(img), percent);
             },
-            onthumbloaded : function(data)
+            onthumbloaded : function()
             {
-                self.view.showThumb(
-                    self.model.indexOf(img), 
-                    data, 
-                    function()
-                    {
-                        img.upload();
-                    });
+                self.view.imageDataLoaded(self.model.indexOf(img));
             },
-            onupdateurl : function()
+            onupdateurl : function(url)
             {
-                self.view.updateurl();
+                self.view.updateurl(self.model.indexOf(img), url);
+                self.view.showThumb(self.model.indexOf(img), url);
             },
         });
 
         this.model.push(img);
-        img.loadThumb();
+        this.waterfall.appendImage(img);
 
         this.view.addImage(img);
         return img;

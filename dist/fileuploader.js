@@ -1,11 +1,13 @@
 /*global FileUploaderView: true*/
 /*global LPImage: true*/
+/*global Waterfall: true*/
 'use strict';
 
 var FileUploader = function(obj, options)
 {
     this.$obj = $(obj);
     this.options = options;
+    this.waterfall = new Waterfall();
 
     this.model = [];
 
@@ -30,24 +32,19 @@ FileUploader.prototype.addImage = function(file)
             {
                 self.view.updateThumbProgress(self.model.indexOf(img), percent);
             },
-            onthumbloaded : function(data)
+            onthumbloaded : function()
             {
-                self.view.showThumb(
-                    self.model.indexOf(img), 
-                    data, 
-                    function()
-                    {
-                        img.upload();
-                    });
+                self.view.imageDataLoaded(self.model.indexOf(img));
             },
-            onupdateurl : function()
+            onupdateurl : function(url)
             {
-                self.view.updateurl();
+                self.view.updateurl(self.model.indexOf(img), url);
+                self.view.showThumb(self.model.indexOf(img), url);
             },
         });
 
         this.model.push(img);
-        img.loadThumb();
+        this.waterfall.appendImage(img);
 
         this.view.addImage(img);
         return img;
@@ -140,6 +137,8 @@ var FileUploaderView = function(controller)
     this.$main_template = undefined;
 
     this.loadTemplates();
+    this.thumbs_loading = [];
+    this.is_loading = false;
 };
 
 
@@ -215,23 +214,57 @@ FileUploaderView.prototype.updateThumbProgress = function(index, percent)
     this.applyPercent(this.$images[index], percent);
 };
 
-FileUploaderView.prototype.showThumb = function(index, data, callback) 
+FileUploaderView.prototype.imageDataLoaded = function(index) 
+{
+    $('.imgup-progress-bar', this.$images[index]).css('opacity', 1);
+    $('.imgup-progress-bar', this.$images[index]).css('width', 0);
+};
+
+FileUploaderView.prototype.showThumb = function(index, url) 
 {
     var self = this;
 
-    setTimeout(function()
-    {
-        var $img = $('img', self.$images[index]);
+    this.thumbs_loading.push({ 
+        'img' : $('img', self.$images[index]), 
+        'url' : url,
+        'index' : index
+    });
+    this.loadingThumbgs();
 
-        $img.load(function()
+    // this.thumbs_loading = [];
+    // this.is_loading = false;
+};
+
+
+FileUploaderView.prototype.loadingThumbgs = function()
+{
+    if (this.is_loading)
+        return;
+
+    var self = this;
+
+    if (this.thumbs_loading.length > 0)
+    {
+        var thumb = this.thumbs_loading.shift();
+        setTimeout(function()
         {
-            setTimeout(function()
+            var img = thumb.img.clone();
+
+            img.load(function()
             {
-                callback();
-            }, 10);
-        });
-        $img.attr('src', data);
-    }, 10);
+                thumb.img.replaceWith(img);
+
+                // this.is_loading = false;
+                self.loadingThumbgs();
+            });
+            img.attr('src', thumb.url);
+
+        }, 500);
+
+        return;
+    }
+
+    this.is_loading = false;
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
@@ -239,7 +272,7 @@ FileUploaderView.prototype.applyPercent = function($el, percent)
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
-FileUploaderView.prototype.updateurl = function() 
+FileUploaderView.prototype.updateurl = function(index, url) 
 {
     var urls = this.controller.getImagesURL();
     var $input = this.controller.getInput();
@@ -280,6 +313,73 @@ FileUploaderView.prototype.updateurl = function()
 // };
 
 
+
+var Waterfall = function()
+{
+    this.images = [];
+    this.upload_images = [];
+    this.is_loading = false;
+    this.is_uploading = false;
+};
+
+Waterfall.prototype.appendImage = function(image) 
+{
+    this.images.push(image);
+    this.loadThumbs();
+};
+
+Waterfall.prototype.loadThumbs = function() 
+{
+    if (this.is_loading)
+        return;
+
+    var self = this;
+
+    if (this.images.length > 0)
+    {
+        var image = this.images.shift();
+
+        this.is_loading = true;
+        image.loadThumb(function()
+        {
+            self.is_loading = false;
+            self.loadThumbs();
+            self.upload_images.push(image);
+
+            self.uploadImages();
+        });
+
+        return;
+    }
+
+    this.is_loading = false;
+};
+
+Waterfall.prototype.uploadImages = function() 
+{
+    if (this.is_uploading)
+        return;
+
+    var self = this;
+
+    if (this.upload_images.length > 0)
+    {
+        var image = this.upload_images.shift();
+
+        this.is_uploading = true;
+        image.upload(function()
+        {
+            self.is_uploading = false;
+            self.uploadImages();
+        });
+
+        return;
+    }
+
+    this.is_uploading = false;
+};
+
+
 var LPImage = function(data)
 {
     this.name = data.file.name === undefined ? '' : data.file.name;
@@ -287,9 +387,10 @@ var LPImage = function(data)
     this.file = data.file;
     this.data = '';
     this.url = '';
+
+    // events
     this.onthumbprogress = data.onthumbprogress === undefined ? $.noop() : data.onthumbprogress;
     this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
-    this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
     this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
     this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
@@ -298,7 +399,7 @@ var LPImage = function(data)
     this.percentComplete = 0;
 };
 
-LPImage.prototype.loadThumb = function() 
+LPImage.prototype.loadThumb = function(callback) 
 {
     var self = this;
     var reader = new FileReader();
@@ -307,10 +408,10 @@ LPImage.prototype.loadThumb = function()
     {
         self.data = e.target.result;
         self.onthumbloaded(self.data);
-        // setTimeout(function()
-        // {
-        //     callback();
-        // }, 100);
+        setTimeout(function()
+        {
+            callback();
+        }, 100);
     };
 
     reader.onprogress = function(data)
@@ -328,46 +429,83 @@ LPImage.prototype.loadThumb = function()
     reader.readAsDataURL(this.file);
 };
 
-LPImage.prototype.upload = function() 
+LPImage.prototype.upload = function(callback) 
 {
-    var data = {
-        'name' : this.name,
-        'size' : this.size,
-        'data' : this.data
+    var data = new FormData();
+    data.append('name', this.name);
+    data.append('size', this.size);
+    data.append('data', this.data);
+
+    var self = this;
+
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if(request.readyState == 4){
+            try {
+                var resp = request.response;
+
+                self.url = resp;
+                self.onupdateurl(resp);
+
+                callback();
+            } catch (e){
+                var resp = {
+                    status: 'error',
+                    data: 'Unknown error occurred: [' + request.responseText + ']'
+                };
+            }
+        }
     };
 
-    $.ajax({
-        url : this.uploadurl,
-        method : 'POST',
-        cache : false,
-        data : data,
-        xhr : function()
-        {
-            var xhr = new window.XMLHttpRequest();
-            //Download progress
-            xhr.addEventListener(
-                'progress', 
-                function (evt) 
-                {
-                    if (evt.lengthComputable) 
-                    {
-                        // this.percentComplete = Math.round((evt.loaded / evt.total) * 100);
-                        // this.onprogress(this.percentComplete);
-                    }
-                    else
-                    {
-                        // this.percentComplete = 100;
-                        // this.onprogress(this.percentComplete);
-                    }
-                }, false);
-            return xhr;
-        },
-
-    }).done(function(data)
+    request.upload.addEventListener('progress', function(e)
     {
-        this.url = data;
-        this.onupdateurl();
-    });
+        self.percentComplete = Math.ceil(e.loaded/e.total) * 100;
+        self.onprogress(self.percentComplete);
+    }, false);
+
+
+    request.open('POST', self.uploadurl);
+    request.send(data);
+
+    // var data = {
+    //     'name' : this.name,
+    //     'size' : this.size,
+    //     'data' : this.data
+    // };
+
+    // $.ajax({
+    //     url : this.uploadurl,
+    //     method : 'POST',
+    //     cache : false,
+    //     data : data,
+    //     xhr : function()
+    //     {
+    //         var xhr = new window.XMLHttpRequest();
+    //         //Download progress
+    //         xhr.upload.addEventListener(
+    //             'progress', 
+    //             function (evt) 
+    //             {
+    //                 if (evt.lengthComputable) 
+    //                 {
+    //                     self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
+    //                     self.onprogress(self.percentComplete);
+    //                 }
+    //                 else
+    //                 {
+    //                     self.percentComplete = 100;
+    //                     self.onprogress(self.percentComplete);
+    //                 }
+    //             }, false);
+    //         return xhr;
+    //     },
+
+    // }).done(function(data)
+    // {
+    //     callback();
+    //     self.url = data;
+    //     self.onupdateurl();
+    // });
         // var self = this;
         // var data = {
         //         'name' : this.name,
