@@ -41,7 +41,14 @@ FileUploader.prototype.addImage = function(file)
             onupdateurl : function(url)
             {
                 self.view.updateurl(self.model.indexOf(img), url);
-                self.view.showThumb(self.model.indexOf(img), url);
+                if (self.options.thumbnail_origin === 'local')
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.data);
+                }
+                else
+                {
+                    self.view.showThumb(self.model.indexOf(img), url);
+                }
             },
         });
 
@@ -520,7 +527,8 @@ LPImage.prototype.upload = function(callback)
         var set = {
             uploadurl : '/',
             response_type : 'string',
-            thumbnail : ''
+            thumbnail : '',
+            thumbnail_origin : 'local' // remote
         };
 
         if (methods[method_or_settings])

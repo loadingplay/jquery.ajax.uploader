@@ -29,7 +29,8 @@
         var set = {
             uploadurl : '/',
             response_type : 'string',
-            thumbnail : ''
+            thumbnail : '',
+            thumbnail_origin : 'local' // remote
         };
 
         if (methods[method_or_settings])
