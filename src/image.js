@@ -158,12 +158,37 @@ LPImage.prototype.loadThumb = function(callback)
     reader.readAsDataURL(this.file);
 };
 
+LPImage.prototype.generateBlob = function(b64Data, contentType, sliceSize) 
+{
+    contentType = contentType || '';
+    sliceSize = sliceSize || 512;
+
+    var byteCharacters = b64Data; // atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        var byteNumbers = new Array(slice.length);
+        for (var i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        var byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+};
+
 LPImage.prototype.upload = function(callback) 
 {
     var data = new FormData();
     data.append('name', this.name);
     data.append('size', this.size);
-    data.append('data', this.data);
+    data.append('data', generateBlob(this.data, 'text/plain', 32));
 
     var self = this;
 
@@ -197,7 +222,8 @@ LPImage.prototype.upload = function(callback)
 
     request.upload.addEventListener('progress', function(e)
     {
-        self.percentComplete = Math.ceil(e.loaded/e.total) * 100;
+        var position = e.loaded || e.position;
+        self.percentComplete = Math.ceil(position/e.total) * 100;
         self.onprogress(self.percentComplete);
     }, false);
 

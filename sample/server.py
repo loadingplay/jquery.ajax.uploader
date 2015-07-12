@@ -16,6 +16,9 @@ class MainHandler(tornado.web.RequestHandler):
         image_size = self.get_argument("size", 0)
         image_data = self.get_argument("data", "")
 
+        if image_data == "":
+            image_data = self.request.files['data'][0]['body']
+
         # decode image data
         data = image_data.split(",")
         metadata = data[0]  # data:image/png;base64
