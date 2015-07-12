@@ -32,7 +32,13 @@ FileUploader.prototype.addImage = function(file)
             },
             onthumbloaded : function(data)
             {
-                self.view.showThumb(self.model.indexOf(img), data);
+                self.view.showThumb(
+                    self.model.indexOf(img), 
+                    data, 
+                    function()
+                    {
+                        img.upload();
+                    });
             },
             onupdateurl : function()
             {
@@ -41,7 +47,7 @@ FileUploader.prototype.addImage = function(file)
         });
 
         this.model.push(img);
-        img.upload();
+        img.loadThumb();
 
         this.view.addImage(img);
         return img;

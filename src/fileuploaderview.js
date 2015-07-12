@@ -109,17 +109,23 @@ FileUploaderView.prototype.updateThumbProgress = function(index, percent)
     this.applyPercent(this.$images[index], percent);
 };
 
-FileUploaderView.prototype.showThumb = function(index, data) 
+FileUploaderView.prototype.showThumb = function(index, data, callback) 
 {
     var self = this;
 
+    setTimeout(function()
+    {
         var $img = $('img', self.$images[index]);
-        var $new_img = $img.clone();
-        $new_img.on('load', function()
+
+        $img.load(function()
         {
-            $img.replaceWith($new_img);
+            setTimeout(function()
+            {
+                callback();
+            }, 10);
         });
-        $new_img.attr('src', data);
+        $img.attr('src', data);
+    }, 10);
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 

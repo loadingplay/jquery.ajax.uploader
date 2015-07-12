@@ -32,7 +32,13 @@ FileUploader.prototype.addImage = function(file)
             },
             onthumbloaded : function(data)
             {
-                self.view.showThumb(self.model.indexOf(img), data);
+                self.view.showThumb(
+                    self.model.indexOf(img), 
+                    data, 
+                    function()
+                    {
+                        img.upload();
+                    });
             },
             onupdateurl : function()
             {
@@ -41,7 +47,7 @@ FileUploader.prototype.addImage = function(file)
         });
 
         this.model.push(img);
-        img.upload();
+        img.loadThumb();
 
         this.view.addImage(img);
         return img;
@@ -209,17 +215,23 @@ FileUploaderView.prototype.updateThumbProgress = function(index, percent)
     this.applyPercent(this.$images[index], percent);
 };
 
-FileUploaderView.prototype.showThumb = function(index, data) 
+FileUploaderView.prototype.showThumb = function(index, data, callback) 
 {
     var self = this;
 
+    setTimeout(function()
+    {
         var $img = $('img', self.$images[index]);
-        var $new_img = $img.clone();
-        $new_img.on('load', function()
+
+        $img.load(function()
         {
-            $img.replaceWith($new_img);
+            setTimeout(function()
+            {
+                callback();
+            }, 10);
         });
-        $new_img.attr('src', data);
+        $img.attr('src', data);
+    }, 10);
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
@@ -236,14 +248,48 @@ FileUploaderView.prototype.updateurl = function()
 };
 'use strict';
 
+
+// var LPImageUploadPool = function()
+// {
+//     this.images = [];
+//     this.uploaded_images = [];
+//     this.uploading = false;
+// };
+
+
+// LPImageUploadPool.prototype.addImage = function(image) 
+// {
+//     if (this.uploaded_images.indexOf(image) !== -1)
+//     {
+//         this.images.append(image);
+//     }
+
+//     if (!this.uploading)
+//     {
+//         this.processUpload();
+//     }
+// };
+
+
+// LPImageUploadPool.prototype.processUpload = function() 
+// {
+//     if (this.images.length > 0)
+//     {
+//         var img = 
+//     }
+// };
+
+
 var LPImage = function(data)
 {
     this.name = data.file.name === undefined ? '' : data.file.name;
     this.size = data.file.size === undefined ? '' : data.file.size;
     this.file = data.file;
+    this.data = '';
     this.url = '';
     this.onthumbprogress = data.onthumbprogress === undefined ? $.noop() : data.onthumbprogress;
     this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
+    this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
     this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
     this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
@@ -252,7 +298,7 @@ var LPImage = function(data)
     this.percentComplete = 0;
 };
 
-LPImage.prototype.loadThumb = function(callback) 
+LPImage.prototype.loadThumb = function() 
 {
     var self = this;
     var reader = new FileReader();
@@ -261,7 +307,10 @@ LPImage.prototype.loadThumb = function(callback)
     {
         self.data = e.target.result;
         self.onthumbloaded(self.data);
-        callback();
+        // setTimeout(function()
+        // {
+        //     callback();
+        // }, 100);
     };
 
     reader.onprogress = function(data)
@@ -281,8 +330,44 @@ LPImage.prototype.loadThumb = function(callback)
 
 LPImage.prototype.upload = function() 
 {
-    this.loadThumb(function()
+    var data = {
+        'name' : this.name,
+        'size' : this.size,
+        'data' : this.data
+    };
+
+    $.ajax({
+        url : this.uploadurl,
+        method : 'POST',
+        cache : false,
+        data : data,
+        xhr : function()
+        {
+            var xhr = new window.XMLHttpRequest();
+            //Download progress
+            xhr.addEventListener(
+                'progress', 
+                function (evt) 
+                {
+                    if (evt.lengthComputable) 
+                    {
+                        // this.percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                        // this.onprogress(this.percentComplete);
+                    }
+                    else
+                    {
+                        // this.percentComplete = 100;
+                        // this.onprogress(this.percentComplete);
+                    }
+                }, false);
+            return xhr;
+        },
+
+    }).done(function(data)
     {
+        this.url = data;
+        this.onupdateurl();
+    });
         // var self = this;
         // var data = {
         //         'name' : this.name,
@@ -321,7 +406,6 @@ LPImage.prototype.upload = function()
         //         self.url = data;
         //         self.onupdateurl();
         //     });
-    });
 };
 /*global FileUploader:true*/
 'use strict';
