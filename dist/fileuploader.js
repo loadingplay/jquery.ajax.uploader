@@ -24,6 +24,8 @@ FileUploader.prototype.addImage = function(file)
         var img = new LPImage({
             file : file,
             uploadurl : this.options.uploadurl,
+            response_type : this.options.response_type,
+            thumbnail : this.options.thumbnail,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -87,15 +89,15 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
-FileUploader.prototype.getImagesURL = function() 
+FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];
     for (var i = 0; i < this.model.length; i++) 
     {
         var image = this.model[i];
-        if (image.url !== '')
+        if (image.value !== '')
         {
-            urls.push(image.url);
+            urls.push(image.value);
         }
     }
 
@@ -272,9 +274,9 @@ FileUploaderView.prototype.applyPercent = function($el, percent)
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
-FileUploaderView.prototype.updateurl = function(index, url) 
+FileUploaderView.prototype.updateurl = function() 
 {
-    var urls = this.controller.getImagesURL();
+    var urls = this.controller.getImagesData();
     var $input = this.controller.getInput();
 
     $input.val(urls);
@@ -386,6 +388,7 @@ var LPImage = function(data)
     this.size = data.file.size === undefined ? '' : data.file.size;
     this.file = data.file;
     this.data = '';
+    this.value = '';
     this.url = '';
 
     // events
@@ -394,9 +397,18 @@ var LPImage = function(data)
     this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
     this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
     this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
+    this.response_type = data.response_type === undefined ? 'string' : data.response_type;
+    this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
 
     this.thumbPercent = 0;
     this.percentComplete = 0;
+
+
+    if (this.thumbnail !== '')
+    {
+        this.response_type = 'json';
+    }
+
 };
 
 LPImage.prototype.loadThumb = function(callback) 
@@ -443,16 +455,25 @@ LPImage.prototype.upload = function(callback)
         if(request.readyState == 4){
             try {
                 var resp = request.response;
+                self.value = request.response;
 
-                self.url = resp;
-                self.onupdateurl(resp);
+                if (self.response_type === 'string')
+                {
+                    self.url = resp;
+                    self.onupdateurl(resp);
+                }
+                else
+                {
+                    resp = $.parseJSON(request.response);
+                    self.url = resp[self.thumbnail];
+                    self.onupdateurl(resp[self.thumbnail]);
+                }
 
                 callback();
-            } catch (e){
-                var resp = {
-                    status: 'error',
-                    data: 'Unknown error occurred: [' + request.responseText + ']'
-                };
+            } 
+            catch (e)
+            {
+                // nothing here
             }
         }
     };
@@ -467,83 +488,6 @@ LPImage.prototype.upload = function(callback)
     request.open('POST', self.uploadurl);
     request.send(data);
 
-    // var data = {
-    //     'name' : this.name,
-    //     'size' : this.size,
-    //     'data' : this.data
-    // };
-
-    // $.ajax({
-    //     url : this.uploadurl,
-    //     method : 'POST',
-    //     cache : false,
-    //     data : data,
-    //     xhr : function()
-    //     {
-    //         var xhr = new window.XMLHttpRequest();
-    //         //Download progress
-    //         xhr.upload.addEventListener(
-    //             'progress', 
-    //             function (evt) 
-    //             {
-    //                 if (evt.lengthComputable) 
-    //                 {
-    //                     self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
-    //                     self.onprogress(self.percentComplete);
-    //                 }
-    //                 else
-    //                 {
-    //                     self.percentComplete = 100;
-    //                     self.onprogress(self.percentComplete);
-    //                 }
-    //             }, false);
-    //         return xhr;
-    //     },
-
-    // }).done(function(data)
-    // {
-    //     callback();
-    //     self.url = data;
-    //     self.onupdateurl();
-    // });
-        // var self = this;
-        // var data = {
-        //         'name' : this.name,
-        //         'size' : this.size
-        //     };
-
-        // $.ajax({
-        //     url : this.uploadurl, 
-        //     method : 'POST',
-        //     cache : false,
-        //     data : data,
-        //     xhr : function()
-        //     {
-        //         var xhr = new window.XMLHttpRequest();
-        //         //Download progress
-        //         xhr.addEventListener(
-        //             'progress', 
-        //             function (evt) 
-        //             {
-        //                 if (evt.lengthComputable) 
-        //                 {
-        //                     self.percentComplete = Math.round((evt.loaded / evt.total) * 100);
-        //                     self.onprogress(self.percentComplete);
-        //                 }
-        //                 else
-        //                 {
-        //                     self.percentComplete = 100;
-        //                     self.onprogress(self.percentComplete);
-        //                 }
-        //             }, false);
-        //         return xhr;
-        //     }
-        // })
-        // .done(function(data)
-        //     {
-        //         self.url = data;
-        //         self.onupdateurl();
-        //     });
 };
 /*global FileUploader:true*/
 'use strict';
@@ -574,7 +518,9 @@ LPImage.prototype.upload = function(callback)
     {
 
         var set = {
-            uploadurl : '/'
+            uploadurl : '/',
+            response_type : 'string',
+            thumbnail : ''
         };
 
         if (methods[method_or_settings])

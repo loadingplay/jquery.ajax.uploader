@@ -169,9 +169,9 @@ FileUploaderView.prototype.applyPercent = function($el, percent)
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
-FileUploaderView.prototype.updateurl = function(index, url) 
+FileUploaderView.prototype.updateurl = function() 
 {
-    var urls = this.controller.getImagesURL();
+    var urls = this.controller.getImagesData();
     var $input = this.controller.getInput();
 
     $input.val(urls);

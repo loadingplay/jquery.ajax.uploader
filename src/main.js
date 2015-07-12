@@ -27,7 +27,9 @@
     {
 
         var set = {
-            uploadurl : '/'
+            uploadurl : '/',
+            response_type : 'string',
+            thumbnail : ''
         };
 
         if (methods[method_or_settings])

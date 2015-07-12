@@ -26,6 +26,7 @@ class MainHandler(tornado.web.RequestHandler):
         f.close()
 
         # return image url
+        # self.write({ "thumb":"/static/sample/uploads/" + image_name})
         self.write("/static/sample/uploads/" + image_name)
 
 

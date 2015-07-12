@@ -24,6 +24,8 @@ FileUploader.prototype.addImage = function(file)
         var img = new LPImage({
             file : file,
             uploadurl : this.options.uploadurl,
+            response_type : this.options.response_type,
+            thumbnail : this.options.thumbnail,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -87,15 +89,15 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
-FileUploader.prototype.getImagesURL = function() 
+FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];
     for (var i = 0; i < this.model.length; i++) 
     {
         var image = this.model[i];
-        if (image.url !== '')
+        if (image.value !== '')
         {
-            urls.push(image.url);
+            urls.push(image.value);
         }
     }
 
