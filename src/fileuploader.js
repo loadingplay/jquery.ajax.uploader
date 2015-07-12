@@ -13,30 +13,37 @@ var FileUploader = function(obj, options)
     this.view.init();
 };
 
-FileUploader.prototype.addImage = function(name, size, data) 
+FileUploader.prototype.addImage = function(file) 
 {
     var self = this;
-    if (this.isImage(name))
+
+    if (this.isImage(file.name))
     {
         var img = new LPImage({
-            name : name,
-            size : size,
-            data : data,
+            file : file,
             uploadurl : this.options.uploadurl,
             onprogress : function(percent)
             {
-                self.view.updateView(self.model.indexOf(img), percent);
+                self.view.updateUploadProgress(self.model.indexOf(img), percent);
+            },
+            onthumbprogress : function(percent)
+            {
+                self.view.updateThumbProgress(self.model.indexOf(img), percent);
+            },
+            onthumbloaded : function(data)
+            {
+                self.view.showThumb(self.model.indexOf(img), data);
             },
             onupdateurl : function()
             {
                 self.view.updateurl();
-            }
+            },
         });
 
+        this.model.push(img);
         img.upload();
 
-        this.model.push(img);
-
+        this.view.addImage(img);
         return img;
     }
 };
@@ -83,7 +90,10 @@ FileUploader.prototype.getImagesURL = function()
     for (var i = 0; i < this.model.length; i++) 
     {
         var image = this.model[i];
-        urls.push(image.url);
+        if (image.url !== '')
+        {
+            urls.push(image.url);
+        }
     }
 
     return urls;

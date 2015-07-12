@@ -30,6 +30,8 @@ var FileUploaderView = function(controller)
     this.main_template = '';
     this.img_template = '';
     this.add_img_template = '';
+    this.$images = [];
+    this.$main_template = undefined;
 
     this.loadTemplates();
 };
@@ -51,37 +53,27 @@ FileUploaderView.prototype.addInputEvent = function($input)
     var self = this;
     $input.change(function(evt)
     {
-        self.addFiles(evt.target.files);
+        var i = 0;
+        var files = evt.target.files;
+
+        for (i = 0; i < files.length; i++)
+        {
+            self.controller.addImage(files[i]);
+        }
     });
 };
 
-FileUploaderView.prototype.addFiles = function(files) 
+FileUploaderView.prototype.addImage = function(img) 
 {
-    var i = 0;
+    var $image_temp = $(this.img_template);
+    $.data($image_temp, 'lpimage', img);
 
-    for (i = 0; i < files.length; i++)
-    {
-        this.addImage(files[i]);
-    }
+    this.applyPercent($image_temp, img.thumbPercent);
+
+    $($image_temp)
+        .insertBefore($('.imgup-add-input-container', this.$main_template));
+    this.$images.push($image_temp);
 };
-
-
-FileUploaderView.prototype.addImage = function(file) 
-{
-    var self = this;
-    var reader = new FileReader();
-    var name = file.name;
-    var size = file.size;
-
-    reader.onload = function(e) 
-    {
-        self.controller.addImage(name, size, e.target.result);
-        self.render();
-    };
-
-    reader.readAsDataURL(file);
-};
-
 
 FileUploaderView.prototype.loadTemplates = function() 
 {
@@ -97,36 +89,42 @@ FileUploaderView.prototype.render = function()
     setTimeout(function() 
     {
         var $main_temp = $(self.main_template);
-        var images = self.controller.getImageList();
-
-        for (var i = 0; i < images.length; i++) 
-        {
-            var image = images[i];
-            var $image_temp = $(self.img_template);
-
-            self.applyPercent($image_temp, image.percentComplete);
-
-            // $(".imgup-image", $image_temp).attr("src", image.data);
-            $('ul', $main_temp).append($image_temp);
-        }
-
         $('ul', $main_temp).append(self.add_img_template);
 
         // return $main_temp;
         $('.imageuploader-container').html($main_temp);
+        this.$main_template = $main_temp;
         self.addInputEvent( $('.imgup-add-input', $main_temp) );
     }, 10);
 };
 
 
-FileUploaderView.prototype.updateView = function(index, percent) 
+FileUploaderView.prototype.updateUploadProgress = function(index, percent) 
 {
-    this.applyPercent($('.imgup>ul li:nth-child('+ index +')'), percent);
+    this.applyPercent(this.$images[index], percent);
+};
+
+FileUploaderView.prototype.updateThumbProgress = function(index, percent) 
+{
+    this.applyPercent(this.$images[index], percent);
+};
+
+FileUploaderView.prototype.showThumb = function(index, data) 
+{
+    var self = this;
+
+        var $img = $('img', self.$images[index]);
+        var $new_img = $img.clone();
+        $new_img.on('load', function()
+        {
+            $img.replaceWith($new_img);
+        });
+        $new_img.attr('src', data);
 };
 
 FileUploaderView.prototype.applyPercent = function($el, percent) 
 {
-    $('.imgup-progress', $el).css('height', (100 - percent) + 'px');
+    $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
 FileUploaderView.prototype.updateurl = function() 
