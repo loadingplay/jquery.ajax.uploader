@@ -15,30 +15,9 @@
     /* jshint ignore:start */
     $(document).ready(function()
     {
-        $("input[name=file]").fileuploader({
-            'thumbnail' : 'thumb',
-            'uploadurl' : 'https://static.loadingplay.com/image/upload'
-        });
-        // $("input[name=file]").fileuploader({
-        //     'thumbnail' : 'thumb'
-        // });
+        $("input[name=file]").fileuploader();
     });
     /* jshint ignore:end */
-
-// var aFileParts = ['este es un archivo de texto'];
-// var blob = new Blob(aFileParts, {type : 'text/plain'});
-// var name = "text.txt";
-
-
-// function download(filename, text) {
-//     var pom = document.createElement('a');
-//     pom.setAttribute('href', text);
-//     pom.setAttribute('download', filename);
-//     pom.click();
-// }
-
-// download(name, URL.createObjectURL(blob));
-
     </script>
 </body>
 </html>
