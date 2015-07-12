@@ -15,7 +15,10 @@
     /* jshint ignore:start */
     $(document).ready(function()
     {
-        $("input[name=file]").fileuploader();
+        $("input[name=file]").fileuploader({
+            'thumbnail' : 'thumb',
+            'uploadurl' : 'https://static.loadingplay.com/image/upload'
+        });
         // $("input[name=file]").fileuploader({
         //     'thumbnail' : 'thumb'
         // });

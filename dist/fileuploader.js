@@ -296,44 +296,13 @@ FileUploaderView.prototype.updateurl = function()
 'use strict';
 
 
-// var LPImageUploadPool = function()
-// {
-//     this.images = [];
-//     this.uploaded_images = [];
-//     this.uploading = false;
-// };
-
-
-// LPImageUploadPool.prototype.addImage = function(image) 
-// {
-//     if (this.uploaded_images.indexOf(image) !== -1)
-//     {
-//         this.images.append(image);
-//     }
-
-//     if (!this.uploading)
-//     {
-//         this.processUpload();
-//     }
-// };
-
-
-// LPImageUploadPool.prototype.processUpload = function() 
-// {
-//     if (this.images.length > 0)
-//     {
-//         var img = 
-//     }
-// };
-
-
-
 var Waterfall = function()
 {
     this.images = [];
     this.upload_images = [];
     this.is_loading = false;
     this.is_uploading = false;
+    this.uploading_counter = 0;
 };
 
 Waterfall.prototype.appendImage = function(image) 
@@ -371,7 +340,7 @@ Waterfall.prototype.loadThumbs = function()
 
 Waterfall.prototype.uploadImages = function() 
 {
-    if (this.is_uploading)
+    if (this.is_uploading && this.uploading_counter >= 3)
         return;
 
     var self = this;
@@ -381,8 +350,10 @@ Waterfall.prototype.uploadImages = function()
         var image = this.upload_images.shift();
 
         this.is_uploading = true;
+        this.uploading_counter += 1;
         image.upload(function()
         {
+            self.uploading_counter -= 1;
             self.is_uploading = false;
             self.uploadImages();
         });
@@ -390,6 +361,7 @@ Waterfall.prototype.uploadImages = function()
         return;
     }
 
+    this.uploading_counter -= 1;
     this.is_uploading = false;
 };
 
@@ -480,51 +452,64 @@ LPImage.prototype.generateBlob = function(b64Data, contentType, sliceSize)
 
 LPImage.prototype.upload = function(callback) 
 {
+    var self = this;
     var data = new FormData();
     data.append('name', this.name);
     data.append('size', this.size);
-    data.append('data', generateBlob(this.data, 'text/plain', 32));
+    data.append('data', this.generateBlob(this.data, 'text/plain', 512));
 
-    var self = this;
+    $.ajax({
+        contentType: false,
+        processData: false,
+        cache: false,
+        url : self.uploadurl,
+        type: 'POST',
+        xhr : function()
+        {
+            var xhr = $.ajaxSettings.xhr();
 
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if(request.readyState == 4){
-            try {
-                var resp = request.response;
-                self.value = request.response;
-
-                if (self.response_type === 'string')
-                {
-                    self.url = resp;
-                    self.onupdateurl(resp);
-                }
-                else
-                {
-                    resp = $.parseJSON(request.response);
-                    self.url = resp[self.thumbnail];
-                    self.onupdateurl(resp[self.thumbnail]);
-                }
-
-                callback();
-            } 
-            catch (e)
+            if (xhr.upload) 
             {
-                // nothing here
+                xhr.upload.addEventListener('progress', function(event) 
+                {
+                    var position = event.loaded || event.position;
+                    self.percentComplete = Math.ceil(position/event.total * 100);
+                    self.onprogress(self.percentComplete);
+                }, false);
             }
+            return xhr;
+        },
+        beforeSend : function(xhr, o)
+        {
+            o.data = data;
         }
-    };
-
-    request.upload.addEventListener('progress', function(e)
+    })
+    .done(function(resp)
     {
-        var position = e.loaded || e.position;
-        self.percentComplete = Math.ceil(position/e.total) * 100;
-        self.onprogress(self.percentComplete);
-    }, false);
+        self.value = resp;
 
+        if (self.response_type === 'string')
+        {
+            self.url = resp;
+            self.onupdateurl(resp);
+        }
+        else
+        {
+            if (typeof(resp) !== 'object')
+            {
+                resp = $.parseJSON(resp);
+            }
+            else
+            {
+                self.value = JSON.stringify(resp);
+            }
+            self.url = resp[self.thumbnail];
+            self.onupdateurl(resp[self.thumbnail]);
+        }
 
-    request.open('POST', self.uploadurl);
-    request.send(data);
+        callback();
+
+    });
 
 };
 /*global FileUploader:true*/
