@@ -154,7 +154,7 @@ FileUploaderView.prototype.loadingThumbgs = function()
                 // this.is_loading = false;
                 self.loadingThumbgs();
             });
-            img.attr('src', thumb.url);
+            img.attr('src', self.controller.getBaseURL() + thumb.url);
 
         }, 500);
 

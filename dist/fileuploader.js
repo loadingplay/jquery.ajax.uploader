@@ -96,6 +96,11 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
+FileUploader.prototype.getBaseURL = function() 
+{
+    return this.options.base_url;
+};
+
 FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];
@@ -266,7 +271,7 @@ FileUploaderView.prototype.loadingThumbgs = function()
                 // this.is_loading = false;
                 self.loadingThumbgs();
             });
-            img.attr('src', thumb.url);
+            img.attr('src', self.controller.getBaseURL() + thumb.url);
 
         }, 500);
 
@@ -525,6 +530,7 @@ LPImage.prototype.upload = function(callback)
     {
 
         var set = {
+            base_url : '',
             uploadurl : '/',
             response_type : 'string',
             thumbnail : '',

@@ -96,6 +96,11 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
+FileUploader.prototype.getBaseURL = function() 
+{
+    return this.options.base_url;
+};
+
 FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];

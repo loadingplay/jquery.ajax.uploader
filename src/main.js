@@ -27,6 +27,7 @@
     {
 
         var set = {
+            base_url : '',
             uploadurl : '/',
             response_type : 'string',
             thumbnail : '',
