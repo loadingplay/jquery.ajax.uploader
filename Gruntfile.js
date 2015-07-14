@@ -18,6 +18,13 @@ module.exports = function(grunt)
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
+        concurrent : 
+        {
+            serve : [ 'shell', 'watch' ],
+            options: {
+                logConcurrentOutput: true
+            }
+        },
         concat: {
             js: {
                 src: ['src/**/*.js'],
@@ -53,7 +60,7 @@ module.exports = function(grunt)
                 stderr: false
             },
             target: {
-                command: 'cd sample && python server.py &'
+                command: 'cd sample && python server.py'
             }
         }
 
@@ -62,13 +69,7 @@ module.exports = function(grunt)
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-serve');
 
-    grunt.registerTask('server', function()
-        {
-            setTimeout(function() 
-            {
-                grunt.task.run('shell');
-            }, 10);
-        });
-    grunt.registerTask('default', ['concat', 'server', 'uglify', 'watch']);
+    grunt.registerTask('default', ['concat', 'uglify', 'concurrent:serve']);
 };

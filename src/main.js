@@ -31,7 +31,8 @@
             uploadurl : '/',
             response_type : 'string',
             thumbnail : '',
-            thumbnail_origin : 'local' // remote
+            thumbnail_origin : 'local', // remote
+            multi : true
         };
 
         if (methods[method_or_settings])

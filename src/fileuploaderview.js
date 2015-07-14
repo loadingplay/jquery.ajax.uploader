@@ -91,12 +91,18 @@ FileUploaderView.prototype.render = function()
     setTimeout(function() 
     {
         var $main_temp = $(self.main_template);
+        var $input_el = null;
+
         $('ul', $main_temp).append(self.add_img_template);
 
         // return $main_temp;
         $('.imageuploader-container').html($main_temp);
+
+        $input_el = $('.imgup-add-input', $main_temp);
+        $input_el.attr('multiple', self.controller.options.multi);
+
         this.$main_template = $main_temp;
-        self.addInputEvent( $('.imgup-add-input', $main_temp) );
+        self.addInputEvent( $input_el );
     }, 10);
 };
 
