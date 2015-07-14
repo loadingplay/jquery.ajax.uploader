@@ -10,6 +10,11 @@ var Waterfall = function()
     this.uploading_counter = 0;
 };
 
+Waterfall.prototype.clearImages = function() 
+{
+    this.images = [];
+};
+
 Waterfall.prototype.appendImage = function(image) 
 {
     this.images.push(image);

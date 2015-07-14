@@ -67,6 +67,7 @@ FileUploaderView.prototype.addInputEvent = function($input)
 
 FileUploaderView.prototype.addImage = function(img) 
 {
+    this.clearImages();
     var $image_temp = $(this.img_template);
     $.data($image_temp, 'lpimage', img);
 
@@ -84,6 +85,19 @@ FileUploaderView.prototype.loadTemplates = function()
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
 };
 
+FileUploaderView.prototype.clearImages = function() 
+{
+    if (!this.controller.options.multi)
+    {
+        $('li', '.imgup').each(function()
+        {
+            if (!$(this).hasClass('imgup-add-input-container'))
+                $(this).remove();
+        });
+
+        this.$images = [];
+    }
+};
 
 FileUploaderView.prototype.render = function() 
 {

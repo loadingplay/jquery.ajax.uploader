@@ -52,6 +52,12 @@ FileUploader.prototype.addImage = function(file)
             },
         });
 
+        if (!this.options.multi)
+        {
+            this.model = [];
+            this.waterfall.clearImages();
+        }
+
         this.model.push(img);
         this.waterfall.appendImage(img);
 
