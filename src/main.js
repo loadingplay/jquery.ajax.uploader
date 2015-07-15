@@ -32,7 +32,8 @@
             response_type : 'string',
             thumbnail : '',
             thumbnail_origin : 'local', // remote
-            multi : true
+            multi : true,
+            images : []
         };
 
         if (methods[method_or_settings])

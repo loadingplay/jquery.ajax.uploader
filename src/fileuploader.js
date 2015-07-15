@@ -10,9 +10,45 @@ var FileUploader = function(obj, options)
     this.waterfall = new Waterfall();
 
     this.model = [];
+    this.preloadImages();
 
     this.view = new FileUploaderView(this);
     this.view.init();
+};
+
+FileUploader.prototype.addImagePreloading = function(index, image) 
+{
+    var blob = null;
+    var xhr = new XMLHttpRequest(); 
+    var self = this;
+    var img = null;
+    xhr.open('GET', self.options.base_url + image.src); 
+    xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
+    xhr.onload = function(e) 
+    {
+        blob = xhr.response;//xhr.response is now a blob object
+        blob.name = image.name;
+
+        img = self.addImage(blob);
+
+        img.data = e.target.result;
+        img.value = image.value;
+        img.url = image.src;
+
+        self.view.showThumb(index, img.value);
+        self.view.updateurl();
+    };
+
+    xhr.send();
+};
+
+FileUploader.prototype.preloadImages = function() 
+{
+    for (var i = 0; i < this.options.images.length; i++) 
+    {
+        var image = this.options.images[i];
+        this.addImagePreloading(i, image);
+    }
 };
 
 FileUploader.prototype.addImage = function(file) 

@@ -17,6 +17,18 @@
         <input type="file" name="file-single" />
         <div style="clear:both" ></div>
     </div>
+    <hr />
+
+    <div>
+        <input type="file" name="file-preloaded" />
+        <div style="clear:both" ></div>
+    </div>
+    <hr />
+
+    <div>
+        <input type="file" name="file-preloaded-multi" />
+        <div style="clear:both" ></div>
+    </div>
 
     <script type="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="/static/dist/fileuploader.js"></script>
@@ -24,10 +36,39 @@
     /* jshint ignore:start */
     $(document).ready(function()
     {
+        $("input[name=file]").fileuploader();
+
         $("input[name=file-single]").fileuploader({
             'multi' : false
         });
-        $("input[name=file]").fileuploader();
+
+        $("input[name=file-preloaded]").fileuploader({
+            images : [{
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            }],
+            multi : false
+        });
+
+        $("input[name=file-preloaded-multi]").fileuploader({
+            images : [{
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            }],
+            multi : true
+        });
     });
     /* jshint ignore:end */
     </script>
