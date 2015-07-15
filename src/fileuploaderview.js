@@ -36,6 +36,8 @@ var FileUploaderView = function(controller)
     this.loadTemplates();
     this.thumbs_loading = [];
     this.is_loading = false;
+
+    this.$container = $('<div class="imageuploader-container" ></div>');
 };
 
 
@@ -46,7 +48,7 @@ FileUploaderView.prototype.init = function()
 
     $input.css('visibility', 'hidden');
     $input.attr('type', 'text');
-    $input.after('<div class="imageuploader-container" ></div>');
+    $input.after(this.$container);
     this.render();
 };
 
@@ -89,7 +91,7 @@ FileUploaderView.prototype.clearImages = function()
 {
     if (!this.controller.options.multi)
     {
-        $('li', '.imgup').each(function()
+        $('li', this.$container).each(function()
         {
             if (!$(this).hasClass('imgup-add-input-container'))
                 $(this).remove();
@@ -110,12 +112,12 @@ FileUploaderView.prototype.render = function()
         $('ul', $main_temp).append(self.add_img_template);
 
         // return $main_temp;
-        $('.imageuploader-container').html($main_temp);
+        self.$container.html($main_temp);
 
         $input_el = $('.imgup-add-input', $main_temp);
         $input_el.attr('multiple', self.controller.options.multi);
 
-        this.$main_template = $main_temp;
+        self.$main_template = $main_temp;
         self.addInputEvent( $input_el );
     }, 10);
 };
