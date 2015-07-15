@@ -34,11 +34,11 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application([
-    (r"/", MainHandler),
-],
-template_path=os.path.dirname(__file__),
-static_path=os.path.join('..'),
-debug=True
+        (r"/", MainHandler),
+    ],
+    template_path=os.path.dirname(__file__),
+    static_path=os.path.join('..'),
+    debug=True
 )
 
 if __name__ == "__main__":
