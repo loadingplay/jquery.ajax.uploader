@@ -3,6 +3,11 @@
 /*global Waterfall: true*/
 'use strict';
 
+/**
+ * controller for a simple image uploader
+ * @param {Object} obj     DOM input that will be replaced
+ * @param {JSON} options   list of configurations and callbacks
+ */
 var FileUploader = function(obj, options)
 {
     this.$obj = $(obj);
@@ -16,6 +21,14 @@ var FileUploader = function(obj, options)
     this.view.init();
 };
 
+/**
+ * preload image
+ *
+ * instantiate an xhr in order to retrieve image data from remote server
+ * this method is used to add previously added images.
+ * @param {Int} index indicates position of selected images
+ * @param {LPImage} image @see : LPImage
+ */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
     var blob = null;
@@ -42,6 +55,15 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     xhr.send();
 };
 
+
+/**
+ * preload a list of images
+ *
+ * iterates over each image in order to preload a thumb in each one 
+ * this method is used to add previously added images.
+ * @see FileUploader.addImagePreloading 
+ * 
+ */
 FileUploader.prototype.preloadImages = function() 
 {
     for (var i = 0; i < this.options.images.length; i++) 
@@ -51,6 +73,14 @@ FileUploader.prototype.preloadImages = function()
     }
 };
 
+/**
+ * add new image to model
+ *
+ * adds an LPImage object to the list of images to upload
+ * @param {File} file contains info of the image retrieved from input 
+ *
+ * @return {LPImage} image from model
+ */
 FileUploader.prototype.addImage = function(file) 
 {
     var self = this;
@@ -102,6 +132,12 @@ FileUploader.prototype.addImage = function(file)
     }
 };
 
+/**
+ * detect if a given text correspond to an image name
+ * @param  {String}  name name of image
+ * @return {Boolean}      true if the image extensions is jpg or png
+ *                        false if any other
+ */
 FileUploader.prototype.isImage = function(name) 
 {
     if (name.toLowerCase().indexOf('.jpg') != -1 ||
@@ -113,17 +149,29 @@ FileUploader.prototype.isImage = function(name)
     return false;
 };
 
+/**
+ * return list of LPImage 
+ * @return {Array} list of added images
+ */
 FileUploader.prototype.getImageList = function() 
 {
     return this.model;
 };
 
-
+/**
+ * return the currently used <input type="file" /> from dom
+ * @return {object} DOM object that is clicked when you want to add images
+ */
 FileUploader.prototype.getInput = function() 
 {
     return this.$obj;
 };
 
+/**
+ * detect if all images are already uploaded
+ * @return {Boolean} true if all images were uploaded
+ *                   false if some image is still waiting to be uploaded
+ */
 FileUploader.prototype.isready = function() 
 {
     for (var i = 0; i < this.model.length; i++) 
@@ -138,11 +186,19 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
+/**
+ * return base_url given in @see: options
+ * @return {String} options.base_url
+ */
 FileUploader.prototype.getBaseURL = function() 
 {
     return this.options.base_url;
 };
 
+/**
+ * return a list of uploaded images URL.
+ * @return {Array} images uploaded
+ */
 FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];

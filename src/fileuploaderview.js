@@ -24,6 +24,13 @@ var FileUploaderTemplates =
         </li>'
 };
 
+
+/**
+ * View of a simple file uploader.
+ * contains all DOM calls.
+ * @param {FileUploader} controller contains a reference to controller 
+ *                                  @see: FileUploader
+ */
 var FileUploaderView = function(controller)
 {
     this.controller = controller;
@@ -40,7 +47,9 @@ var FileUploaderView = function(controller)
     this.$container = $('<div class="imageuploader-container" ></div>');
 };
 
-
+/**
+ * initialize all necesary DOM for starting add images
+ */
 FileUploaderView.prototype.init = function() 
 {
     // hide obj
@@ -52,6 +61,10 @@ FileUploaderView.prototype.init = function()
     this.render();
 };
 
+/**
+ * apply events callbacks over an <input type="file" />
+ * @param {Object} $input jQuery of an input
+ */
 FileUploaderView.prototype.addInputEvent = function($input) 
 {
     var self = this;
@@ -67,6 +80,10 @@ FileUploaderView.prototype.addInputEvent = function($input)
     });
 };
 
+/**
+ * add dom for a given image
+ * @param {LPImage} img html is generated with img parameters
+ */
 FileUploaderView.prototype.addImage = function(img) 
 {
     this.clearImages();
@@ -80,6 +97,9 @@ FileUploaderView.prototype.addImage = function(img)
     this.$images.push($image_temp);
 };
 
+/**
+ * load all templates form @see: FileUploaderTemplates
+ */
 FileUploaderView.prototype.loadTemplates = function() 
 {
     this.main_template = FileUploaderTemplates['imgup-template'];
@@ -87,6 +107,9 @@ FileUploaderView.prototype.loadTemplates = function()
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
 };
 
+/**
+ * clear the list of jQuery images and remove from DOM
+ */
 FileUploaderView.prototype.clearImages = function() 
 {
     if (!this.controller.options.multi)
@@ -101,6 +124,9 @@ FileUploaderView.prototype.clearImages = function()
     }
 };
 
+/**
+ * render all new generated dom for image list
+ */
 FileUploaderView.prototype.render = function() 
 {
     var self = this;
@@ -122,23 +148,41 @@ FileUploaderView.prototype.render = function()
     }, 10);
 };
 
-
+/**
+ * draw the uploading progress bar.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.updateUploadProgress = function(index, percent) 
 {
     this.applyPercent(this.$images[index], percent);
 };
 
+/**
+ * draw the loading progress of thumbnails.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.updateThumbProgress = function(index, percent) 
 {
     this.applyPercent(this.$images[index], percent);
 };
 
+/**
+ * hide progress bar when thumbnail data was loaded
+ * @param  {Int} index    number of image to update
+ */
 FileUploaderView.prototype.imageDataLoaded = function(index) 
 {
     $('.imgup-progress-bar', this.$images[index]).css('opacity', 1);
     $('.imgup-progress-bar', this.$images[index]).css('width', 0);
 };
 
+/**
+ * show a thumbnail in an image
+ * @param  {Int} index      number of image to update
+ * @param  {String} url     route of thumbnail
+ */
 FileUploaderView.prototype.showThumb = function(index, url) 
 {
     var self = this;
@@ -154,7 +198,11 @@ FileUploaderView.prototype.showThumb = function(index, url)
     // this.is_loading = false;
 };
 
-
+/**
+ * Waterfall for thumbnails progress
+ *
+ * only load one at time, and once finished load next
+ */
 FileUploaderView.prototype.loadingThumbgs = function()
 {
     if (this.is_loading)
@@ -186,11 +234,19 @@ FileUploaderView.prototype.loadingThumbgs = function()
     this.is_loading = false;
 };
 
+/**
+ * draw the progress bar.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.applyPercent = function($el, percent) 
 {
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
+/**
+ * fill a list of urls in the input
+ */
 FileUploaderView.prototype.updateurl = function() 
 {
     var urls = this.controller.getImagesData();
