@@ -20,6 +20,13 @@
                 });
 
             return ready;
+        },
+        loadimages : function(images)
+        {
+            this.each(function()
+            {
+                $.data(this, 'plugin_' + pluginName).preloadImages(images);
+            });
         }
     };
 

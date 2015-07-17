@@ -1,17 +1,7 @@
-// module.exports = function(grunt)
-// {
-//     grunt.registerTask('speak', function()
-//         {
-//             console.log("im speaking");
-//         });
+/* global module */
+/* global require */
+'use strict';
 
-//     grunt.registerTask('yell', function()
-//         {
-//             console.log("im yelling");
-//         });
-
-//     grunt.registerTask('default', ['speak', 'yell']);
-// };
 
 module.exports = function(grunt)
 {

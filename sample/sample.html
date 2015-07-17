@@ -30,6 +30,14 @@
         <div style="clear:both" ></div>
     </div>
 
+
+    <hr />
+
+    <div>
+        <input type="file" name="file-preloaded-multi-2" class="preload-multi-2" />
+        <div style="clear:both" ></div>
+    </div>
+
     <script type="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="/static/dist/fileuploader.js"></script>
     <script type="text/javascript">
@@ -69,6 +77,25 @@
             }],
             multi : true
         });
+
+
+        $("input[name=file-preloaded-multi-2]").fileuploader();
+        $(".preload-multi-2").fileuploader("loadimages", [{
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            }]);
+
     });
     /* jshint ignore:end */
     </script>

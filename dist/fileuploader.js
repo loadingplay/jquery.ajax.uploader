@@ -3,6 +3,11 @@
 /*global Waterfall: true*/
 'use strict';
 
+/**
+ * controller for a simple image uploader
+ * @param {Object} obj     DOM input that will be replaced
+ * @param {JSON} options   list of configurations and callbacks
+ */
 var FileUploader = function(obj, options)
 {
     this.$obj = $(obj);
@@ -10,12 +15,20 @@ var FileUploader = function(obj, options)
     this.waterfall = new Waterfall();
 
     this.model = [];
-    this.preloadImages();
+    this.preloadImages(options.images);
 
     this.view = new FileUploaderView(this);
     this.view.init();
 };
 
+/**
+ * preload image
+ *
+ * instantiate an xhr in order to retrieve image data from remote server
+ * this method is used to add previously added images.
+ * @param {Int} index indicates position of selected images
+ * @param {LPImage} image @see : LPImage
+ */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
     var blob = null;
@@ -42,15 +55,32 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     xhr.send();
 };
 
-FileUploader.prototype.preloadImages = function() 
+
+/**
+ * preload a list of images
+ *
+ * iterates over each image in order to preload a thumb in each one 
+ * this method is used to add previously added images.
+ * @see FileUploader.addImagePreloading 
+ * 
+ */
+FileUploader.prototype.preloadImages = function(images) 
 {
-    for (var i = 0; i < this.options.images.length; i++) 
+    for (var i = 0; i < images.length; i++) 
     {
-        var image = this.options.images[i];
+        var image = images[i];
         this.addImagePreloading(i, image);
     }
 };
 
+/**
+ * add new image to model
+ *
+ * adds an LPImage object to the list of images to upload
+ * @param {File} file contains info of the image retrieved from input 
+ *
+ * @return {LPImage} image from model
+ */
 FileUploader.prototype.addImage = function(file) 
 {
     var self = this;
@@ -102,6 +132,12 @@ FileUploader.prototype.addImage = function(file)
     }
 };
 
+/**
+ * detect if a given text correspond to an image name
+ * @param  {String}  name name of image
+ * @return {Boolean}      true if the image extensions is jpg or png
+ *                        false if any other
+ */
 FileUploader.prototype.isImage = function(name) 
 {
     if (name.toLowerCase().indexOf('.jpg') != -1 ||
@@ -113,17 +149,29 @@ FileUploader.prototype.isImage = function(name)
     return false;
 };
 
+/**
+ * return list of LPImage 
+ * @return {Array} list of added images
+ */
 FileUploader.prototype.getImageList = function() 
 {
     return this.model;
 };
 
-
+/**
+ * return the currently used <input type="file" /> from dom
+ * @return {object} DOM object that is clicked when you want to add images
+ */
 FileUploader.prototype.getInput = function() 
 {
     return this.$obj;
 };
 
+/**
+ * detect if all images are already uploaded
+ * @return {Boolean} true if all images were uploaded
+ *                   false if some image is still waiting to be uploaded
+ */
 FileUploader.prototype.isready = function() 
 {
     for (var i = 0; i < this.model.length; i++) 
@@ -138,11 +186,19 @@ FileUploader.prototype.isready = function()
     return true;
 };
 
+/**
+ * return base_url given in @see: options
+ * @return {String} options.base_url
+ */
 FileUploader.prototype.getBaseURL = function() 
 {
     return this.options.base_url;
 };
 
+/**
+ * return a list of uploaded images URL.
+ * @return {Array} images uploaded
+ */
 FileUploader.prototype.getImagesData = function() 
 {
     var urls = [];
@@ -183,6 +239,13 @@ var FileUploaderTemplates =
         </li>'
 };
 
+
+/**
+ * View of a simple file uploader.
+ * contains all DOM calls.
+ * @param {FileUploader} controller contains a reference to controller 
+ *                                  @see: FileUploader
+ */
 var FileUploaderView = function(controller)
 {
     this.controller = controller;
@@ -199,7 +262,9 @@ var FileUploaderView = function(controller)
     this.$container = $('<div class="imageuploader-container" ></div>');
 };
 
-
+/**
+ * initialize all necesary DOM for starting add images
+ */
 FileUploaderView.prototype.init = function() 
 {
     // hide obj
@@ -211,6 +276,10 @@ FileUploaderView.prototype.init = function()
     this.render();
 };
 
+/**
+ * apply events callbacks over an <input type="file" />
+ * @param {Object} $input jQuery of an input
+ */
 FileUploaderView.prototype.addInputEvent = function($input) 
 {
     var self = this;
@@ -226,6 +295,10 @@ FileUploaderView.prototype.addInputEvent = function($input)
     });
 };
 
+/**
+ * add dom for a given image
+ * @param {LPImage} img html is generated with img parameters
+ */
 FileUploaderView.prototype.addImage = function(img) 
 {
     this.clearImages();
@@ -239,6 +312,9 @@ FileUploaderView.prototype.addImage = function(img)
     this.$images.push($image_temp);
 };
 
+/**
+ * load all templates form @see: FileUploaderTemplates
+ */
 FileUploaderView.prototype.loadTemplates = function() 
 {
     this.main_template = FileUploaderTemplates['imgup-template'];
@@ -246,6 +322,9 @@ FileUploaderView.prototype.loadTemplates = function()
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
 };
 
+/**
+ * clear the list of jQuery images and remove from DOM
+ */
 FileUploaderView.prototype.clearImages = function() 
 {
     if (!this.controller.options.multi)
@@ -260,6 +339,9 @@ FileUploaderView.prototype.clearImages = function()
     }
 };
 
+/**
+ * render all new generated dom for image list
+ */
 FileUploaderView.prototype.render = function() 
 {
     var self = this;
@@ -281,23 +363,41 @@ FileUploaderView.prototype.render = function()
     }, 10);
 };
 
-
+/**
+ * draw the uploading progress bar.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.updateUploadProgress = function(index, percent) 
 {
     this.applyPercent(this.$images[index], percent);
 };
 
+/**
+ * draw the loading progress of thumbnails.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.updateThumbProgress = function(index, percent) 
 {
     this.applyPercent(this.$images[index], percent);
 };
 
+/**
+ * hide progress bar when thumbnail data was loaded
+ * @param  {Int} index    number of image to update
+ */
 FileUploaderView.prototype.imageDataLoaded = function(index) 
 {
     $('.imgup-progress-bar', this.$images[index]).css('opacity', 1);
     $('.imgup-progress-bar', this.$images[index]).css('width', 0);
 };
 
+/**
+ * show a thumbnail in an image
+ * @param  {Int} index      number of image to update
+ * @param  {String} url     route of thumbnail
+ */
 FileUploaderView.prototype.showThumb = function(index, url) 
 {
     var self = this;
@@ -313,7 +413,11 @@ FileUploaderView.prototype.showThumb = function(index, url)
     // this.is_loading = false;
 };
 
-
+/**
+ * Waterfall for thumbnails progress
+ *
+ * only load one at time, and once finished load next
+ */
 FileUploaderView.prototype.loadingThumbgs = function()
 {
     if (this.is_loading)
@@ -345,11 +449,19 @@ FileUploaderView.prototype.loadingThumbgs = function()
     this.is_loading = false;
 };
 
+/**
+ * draw the progress bar.
+ * @param  {Int} index      number of image to update
+ * @param  {Int} percent    percentage of progress
+ */
 FileUploaderView.prototype.applyPercent = function($el, percent) 
 {
     $('.imgup-progress-bar', $el).css('width', (percent) + '%');
 };
 
+/**
+ * fill a list of urls in the input
+ */
 FileUploaderView.prototype.updateurl = function() 
 {
     var urls = this.controller.getImagesData();
@@ -603,6 +715,13 @@ LPImage.prototype.upload = function(callback)
                 });
 
             return ready;
+        },
+        loadimages : function(images)
+        {
+            this.each(function()
+            {
+                $.data(this, 'plugin_' + pluginName).preloadImages(images);
+            });
         }
     };
 

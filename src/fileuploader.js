@@ -15,7 +15,7 @@ var FileUploader = function(obj, options)
     this.waterfall = new Waterfall();
 
     this.model = [];
-    this.preloadImages();
+    this.preloadImages(options.images);
 
     this.view = new FileUploaderView(this);
     this.view.init();
@@ -64,11 +64,11 @@ FileUploader.prototype.addImagePreloading = function(index, image)
  * @see FileUploader.addImagePreloading 
  * 
  */
-FileUploader.prototype.preloadImages = function() 
+FileUploader.prototype.preloadImages = function(images) 
 {
-    for (var i = 0; i < this.options.images.length; i++) 
+    for (var i = 0; i < images.length; i++) 
     {
-        var image = this.options.images[i];
+        var image = images[i];
         this.addImagePreloading(i, image);
     }
 };
