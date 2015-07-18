@@ -1,6 +1,6 @@
 'use strict';
 
-var FileUploaderTemplates = 
+var FileUploaderTemplates =  // jshint ignore : line
 {
     'imgup-template' : ' \
         <div class="imgup"> \
@@ -105,6 +105,25 @@ FileUploaderView.prototype.loadTemplates = function()
     this.main_template = FileUploaderTemplates['imgup-template'];
     this.img_template = FileUploaderTemplates['imgup-image-template'];
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
+
+    if (this.controller.options.templates.list_container_template !== '')
+    {
+        this.main_template = $(this.controller.options.templates.list_container_template)
+                                .html();
+    }
+
+    if (this.controller.options.templates.item_template !== '')
+    {
+        this.img_template = $(this.controller.options.templates.item_template).html();
+    }
+
+    if (this.controller.options.templates.input_template !== '')
+    {
+        this.add_img_template = $(this.controller.options.templates.input_template)
+                                    .html();
+    }
+
+    console.log(this.main_template);
 };
 
 /**
@@ -135,7 +154,7 @@ FileUploaderView.prototype.render = function()
         var $main_temp = $(self.main_template);
         var $input_el = null;
 
-        $('ul', $main_temp).append(self.add_img_template);
+        $('ul', $main_temp).append($(self.add_img_template));
 
         // return $main_temp;
         self.$container.html($main_temp);

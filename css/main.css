@@ -73,3 +73,20 @@
     opacity: 0.2;
     width: 100%;
 }
+
+.template 
+{
+    display: none;
+}
+
+.red-border>li
+{
+    border: red solid 1px!important;
+}
+
+.caption
+{
+    display: block;
+    position: absolute;
+    text-shadow: 2px 2px white;
+}

@@ -1,4 +1,6 @@
-/*global FileUploader:true*/
+/*global FileUploader */
+/*global FileUploaderTemplates */
+
 'use strict';
 
 (function ( $, window, document, undefined ) {
@@ -40,6 +42,11 @@
             thumbnail : '',
             thumbnail_origin : 'local', // remote
             multi : true,
+            templates : {
+                list_container_template : '',
+                item_template : '',
+                input_template : ''
+            },
             images : []
         };
 

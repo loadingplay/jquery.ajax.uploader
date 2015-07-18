@@ -38,6 +38,38 @@
         <div style="clear:both" ></div>
     </div>
 
+    <hr/>
+    <div>
+        <input type="file" name="file-uploader-templates" />
+        <div class="template container-template" >
+            <div class="imgup" >
+                <ul class="red-border" ></ul>
+            </div>
+        </div>
+
+        <div class="template image-template" >
+        <li> 
+            <div class="img-container" >
+                <img src="" class="imgup-image" />
+                <div class="imgup-progress" >
+                    <div class="imgup-progress-bar" ></div> 
+                </div> 
+                <span class="caption" >
+                    I'm a caption
+                </span>
+            </div>
+        </li>
+        </div>
+
+        <div class="template input-uploader" >
+            <li class="imgup-add-input-container" > 
+                Click me!!
+                <input type="file" class="imgup-add-input" multiple="multiple" /> 
+            </li>
+        </div>
+
+    </div>
+
     <script type="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="/static/dist/fileuploader.js"></script>
     <script type="text/javascript">
@@ -95,6 +127,14 @@
                 src : "/static/sample/uploads/bug_2.png",
                 value : "/static/sample/uploads/bug_2.png"
             }]);
+
+        $("input[name=file-uploader-templates]").fileuploader({
+            templates : {
+                list_container_template : '.container-template',
+                item_template : '.image-template',
+                input_template : '.input-uploader'
+            }
+        });
 
     });
     /* jshint ignore:end */
