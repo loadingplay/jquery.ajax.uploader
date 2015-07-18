@@ -198,27 +198,33 @@ LPImage.prototype.upload = function(callback)
     {
         self.value = resp;
 
-        if (self.response_type === 'string')
-        {
-            self.url = resp;
-            self.onupdateurl(resp);
-        }
-        else
-        {
-            if (typeof(resp) !== 'object')
-            {
-                resp = $.parseJSON(resp);
-            }
-            else
-            {
-                self.value = JSON.stringify(resp);
-            }
-            self.url = resp[self.thumbnail];
-            self.onupdateurl(resp[self.thumbnail]);
-        }
+        self.onupdateurl(self.getThumbnailURI(resp));
 
         callback();
 
     });
 
+};
+
+
+LPImage.prototype.getThumbnailURI = function(resp) 
+{
+    if (this.response_type === 'string')
+    {
+        this.url = resp;
+        return resp;
+    }
+    else
+    {
+        if (typeof(resp) !== 'object')
+        {
+            resp = $.parseJSON(resp);
+        }
+        else
+        {
+            this.value = JSON.stringify(resp);
+        }
+        this.url = resp[this.thumbnail];
+        return resp[this.thumbnail];
+    }
 };

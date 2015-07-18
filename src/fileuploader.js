@@ -35,8 +35,10 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     var xhr = new XMLHttpRequest(); 
     var self = this;
     var img = null;
+
     xhr.open('GET', self.options.base_url + image.src); 
     xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
+
     xhr.onload = function(e) 
     {
         blob = xhr.response;//xhr.response is now a blob object
@@ -48,7 +50,25 @@ FileUploader.prototype.addImagePreloading = function(index, image)
         img.value = image.value;
         img.url = image.src;
 
-        self.view.showThumb(index, img.value);
+        if (self.options.thumbnail_origin == 'local')
+        {
+            self.view.showThumb(index, img.value);
+        }
+        else
+        {
+            var image_src = img.value;
+            if (self.options.thumbnail !== '')
+            {
+                if (typeof(img.value) !== 'object')
+                {
+                    img.value = $.parseJSON(img.value);
+                }
+
+                image_src = img.value[self.options.thumbnail];
+            }
+
+            self.view.showThumb(index, image_src);
+        }
         self.view.updateurl();
     };
 
