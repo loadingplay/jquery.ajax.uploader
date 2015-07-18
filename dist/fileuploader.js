@@ -337,8 +337,6 @@ FileUploaderView.prototype.loadTemplates = function()
         this.add_img_template = $(this.controller.options.templates.input_template)
                                     .html();
     }
-
-    console.log(this.main_template);
 };
 
 /**
