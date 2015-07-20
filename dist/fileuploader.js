@@ -15,10 +15,11 @@ var FileUploader = function(obj, options)
     this.waterfall = new Waterfall();
 
     this.model = [];
-    this.preloadImages(options.images);
 
     this.view = new FileUploaderView(this);
     this.view.init();
+
+    this.preloadImages(options.images);
 };
 
 /**
@@ -31,49 +32,48 @@ var FileUploader = function(obj, options)
  */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
-    var blob = null;
-    var xhr = new XMLHttpRequest(); 
     var self = this;
     var img = null;
+    var blob_image = new Blob();
+    blob_image.name = image.name;
 
-    xhr.open('GET', self.options.base_url + image.src); 
-    xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
+    // xhr.open('GET', self.options.base_url + image.src); 
+    // xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
 
-    xhr.onload = function(e) 
+    // xhr.onload = function(e) 
+    // {
+        // blob = xhr.response;//xhr.response is now a blob object
+        // blob.name = image.name;
+
+    img = self.addImage(blob_image, true);
+
+    // img.data = e.target.result;
+    img.value = image.value;
+    img.url = image.src;
+
+    if (self.options.thumbnail_origin == 'local')
     {
-        blob = xhr.response;//xhr.response is now a blob object
-        blob.name = image.name;
-
-        img = self.addImage(blob);
-
-        img.data = e.target.result;
-        img.value = image.value;
-        img.url = image.src;
-        img.uploaded = true;
-
-        if (self.options.thumbnail_origin == 'local')
+        self.view.showThumb(index, img.value);
+    }
+    else
+    {
+        var image_src = img.value;
+        if (self.options.thumbnail !== '')
         {
-            self.view.showThumb(index, img.value);
-        }
-        else
-        {
-            var image_src = img.value;
-            if (self.options.thumbnail !== '')
+            if (typeof(img.value) !== 'object')
             {
-                if (typeof(img.value) !== 'object')
-                {
-                    img.value = $.parseJSON(img.value);
-                }
-
-                image_src = img.value[self.options.thumbnail];
+                img.value = $.parseJSON(img.value);
             }
 
-            self.view.showThumb(index, image_src);
+            image_src = img.value[self.options.thumbnail];
         }
-        self.view.updateurl();
-    };
 
-    xhr.send();
+        self.view.showThumb(index, image_src);
+    }
+    self.view.updateurl();
+    // };
+
+    // xhr.send();
 };
 
 
@@ -102,13 +102,14 @@ FileUploader.prototype.preloadImages = function(images)
  *
  * @return {LPImage} image from model
  */
-FileUploader.prototype.addImage = function(file) 
+FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
 
     if (this.isImage(file.name))
     {
         var img = new LPImage({
+            uploaded : is_uploaded,
             file : file,
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
@@ -230,8 +231,10 @@ FileUploader.prototype.getImagesData = function()
         {
             if (typeof(image.value) !== 'string')
             {
-                values.push(JSON.stringify(image.value));
+                image.value = JSON.stringify(image.value);
             }
+
+            values.push(image.value);
         }
     }
 
@@ -386,22 +389,19 @@ FileUploaderView.prototype.clearImages = function()
 FileUploaderView.prototype.render = function() 
 {
     var self = this;
-    setTimeout(function() 
-    {
-        var $main_temp = $(self.main_template);
-        var $input_el = null;
+    var $main_temp = $(self.main_template);
+    var $input_el = null;
 
-        $('ul', $main_temp).append($(self.add_img_template));
+    $('ul', $main_temp).append($(self.add_img_template));
 
-        // return $main_temp;
-        self.$container.html($main_temp);
+    // return $main_temp;
+    self.$container.html($main_temp);
 
-        $input_el = $('.imgup-add-input', $main_temp);
-        $input_el.attr('multiple', self.controller.options.multi);
+    $input_el = $('.imgup-add-input', $main_temp);
+    $input_el.attr('multiple', self.controller.options.multi);
 
-        self.$main_template = $main_temp;
-        self.addInputEvent( $input_el );
-    }, 10);
+    self.$main_template = $main_temp;
+    self.addInputEvent( $input_el );
 };
 
 /**
@@ -469,20 +469,30 @@ FileUploaderView.prototype.loadingThumbgs = function()
     if (this.thumbs_loading.length > 0)
     {
         var thumb = this.thumbs_loading.shift();
+
         setTimeout(function()
         {
-            var img = thumb.img.clone();
+            var img = thumb.img;
+            img.loaded = false;
 
             img.load(function()
             {
-                thumb.img.replaceWith(img);
+                if (!img.loaded)
+                {
+                    img.load = $.noop();
+                    img.loaded = true;
+                    img.css('opacity', '1');
 
-                // this.is_loading = false;
-                self.loadingThumbgs();
+                    self.is_loading = false;
+                    self.loadingThumbgs();
+                }
             });
+            img.css('opacity', '0');
             img.attr('src', self.controller.getBaseURL() + thumb.url);
 
-        }, 500);
+        }, 100);
+
+        self.is_loading = true;
 
         return;
     }
@@ -520,7 +530,6 @@ var Waterfall = function()
     this.is_loading = false;
     this.is_uploading = false;
     this.uploading_counter = 0;
-    this.uploaded = false;
 };
 
 Waterfall.prototype.clearImages = function() 
@@ -530,8 +539,11 @@ Waterfall.prototype.clearImages = function()
 
 Waterfall.prototype.appendImage = function(image) 
 {
-    this.images.push(image);
-    this.loadThumbs();
+    if (!image.uploaded)
+    {
+        this.images.push(image);
+        this.loadThumbs();
+    }
 };
 
 Waterfall.prototype.loadThumbs = function() 
@@ -545,18 +557,18 @@ Waterfall.prototype.loadThumbs = function()
     {
         var image = this.images.shift();
 
-        this.is_loading = true;
-        image.loadThumb(function()
+        if (!image.uploaded)
         {
-            self.is_loading = false;
-            self.loadThumbs();
-            if (!image.uploaded)
+            this.is_loading = true;
+            image.loadThumb(function()
             {
+                self.is_loading = false;
+                self.loadThumbs();
                 self.upload_images.push(image);
-            }
 
-            self.uploadImages();
-        });
+                self.uploadImages();
+            });
+        }
 
         return;
     }
@@ -609,6 +621,7 @@ var LPImage = function(data)
     this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
     this.response_type = data.response_type === undefined ? 'string' : data.response_type;
     this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
+    this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
     this.thumbPercent = 0;
     this.percentComplete = 0;

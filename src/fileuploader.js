@@ -15,10 +15,11 @@ var FileUploader = function(obj, options)
     this.waterfall = new Waterfall();
 
     this.model = [];
-    this.preloadImages(options.images);
 
     this.view = new FileUploaderView(this);
     this.view.init();
+
+    this.preloadImages(options.images);
 };
 
 /**
@@ -31,49 +32,48 @@ var FileUploader = function(obj, options)
  */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
-    var blob = null;
-    var xhr = new XMLHttpRequest(); 
     var self = this;
     var img = null;
+    var blob_image = new Blob();
+    blob_image.name = image.name;
 
-    xhr.open('GET', self.options.base_url + image.src); 
-    xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
+    // xhr.open('GET', self.options.base_url + image.src); 
+    // xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
 
-    xhr.onload = function(e) 
+    // xhr.onload = function(e) 
+    // {
+        // blob = xhr.response;//xhr.response is now a blob object
+        // blob.name = image.name;
+
+    img = self.addImage(blob_image, true);
+
+    // img.data = e.target.result;
+    img.value = image.value;
+    img.url = image.src;
+
+    if (self.options.thumbnail_origin == 'local')
     {
-        blob = xhr.response;//xhr.response is now a blob object
-        blob.name = image.name;
-
-        img = self.addImage(blob);
-
-        img.data = e.target.result;
-        img.value = image.value;
-        img.url = image.src;
-        img.uploaded = true;
-
-        if (self.options.thumbnail_origin == 'local')
+        self.view.showThumb(index, img.value);
+    }
+    else
+    {
+        var image_src = img.value;
+        if (self.options.thumbnail !== '')
         {
-            self.view.showThumb(index, img.value);
-        }
-        else
-        {
-            var image_src = img.value;
-            if (self.options.thumbnail !== '')
+            if (typeof(img.value) !== 'object')
             {
-                if (typeof(img.value) !== 'object')
-                {
-                    img.value = $.parseJSON(img.value);
-                }
-
-                image_src = img.value[self.options.thumbnail];
+                img.value = $.parseJSON(img.value);
             }
 
-            self.view.showThumb(index, image_src);
+            image_src = img.value[self.options.thumbnail];
         }
-        self.view.updateurl();
-    };
 
-    xhr.send();
+        self.view.showThumb(index, image_src);
+    }
+    self.view.updateurl();
+    // };
+
+    // xhr.send();
 };
 
 
@@ -102,13 +102,14 @@ FileUploader.prototype.preloadImages = function(images)
  *
  * @return {LPImage} image from model
  */
-FileUploader.prototype.addImage = function(file) 
+FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
 
     if (this.isImage(file.name))
     {
         var img = new LPImage({
+            uploaded : is_uploaded,
             file : file,
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
@@ -230,8 +231,10 @@ FileUploader.prototype.getImagesData = function()
         {
             if (typeof(image.value) !== 'string')
             {
-                values.push(JSON.stringify(image.value));
+                image.value = JSON.stringify(image.value);
             }
+
+            values.push(image.value);
         }
     }
 

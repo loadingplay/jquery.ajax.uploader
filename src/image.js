@@ -8,7 +8,6 @@ var Waterfall = function()
     this.is_loading = false;
     this.is_uploading = false;
     this.uploading_counter = 0;
-    this.uploaded = false;
 };
 
 Waterfall.prototype.clearImages = function() 
@@ -18,8 +17,11 @@ Waterfall.prototype.clearImages = function()
 
 Waterfall.prototype.appendImage = function(image) 
 {
-    this.images.push(image);
-    this.loadThumbs();
+    if (!image.uploaded)
+    {
+        this.images.push(image);
+        this.loadThumbs();
+    }
 };
 
 Waterfall.prototype.loadThumbs = function() 
@@ -33,18 +35,18 @@ Waterfall.prototype.loadThumbs = function()
     {
         var image = this.images.shift();
 
-        this.is_loading = true;
-        image.loadThumb(function()
+        if (!image.uploaded)
         {
-            self.is_loading = false;
-            self.loadThumbs();
-            if (!image.uploaded)
+            this.is_loading = true;
+            image.loadThumb(function()
             {
+                self.is_loading = false;
+                self.loadThumbs();
                 self.upload_images.push(image);
-            }
 
-            self.uploadImages();
-        });
+                self.uploadImages();
+            });
+        }
 
         return;
     }
@@ -97,6 +99,7 @@ var LPImage = function(data)
     this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
     this.response_type = data.response_type === undefined ? 'string' : data.response_type;
     this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
+    this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
     this.thumbPercent = 0;
     this.percentComplete = 0;
