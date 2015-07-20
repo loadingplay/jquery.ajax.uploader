@@ -50,6 +50,7 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     // img.data = e.target.result;
     img.value = image.value;
     img.url = image.src;
+    img.percentComplete = 100;
 
     if (self.options.thumbnail_origin == 'local')
     {
@@ -240,6 +241,11 @@ FileUploader.prototype.getImagesData = function()
 
     return values;
 };
+
+FileUploader.prototype.deleteImage = function(index) 
+{
+    this.model.splice(index, 1);
+};
 'use strict';
 
 var FileUploaderTemplates =  // jshint ignore : line
@@ -257,6 +263,9 @@ var FileUploaderTemplates =  // jshint ignore : line
                 <div class="imgup-progress" > \
                     <div class="imgup-progress-bar" ></div> \
                 </div> \
+                <div>\
+                    <a class="imgup-delete-button" href="#!" >x</a>\
+                </div>\
             </div> \
         </li>',
 
@@ -330,13 +339,47 @@ FileUploaderView.prototype.addImage = function(img)
 {
     this.clearImages();
     var $image_temp = $(this.img_template);
+    var $button = $('.imgup-delete-button', $image_temp);
+
+    $.data($button, 'lpparent', $image_temp);
     $.data($image_temp, 'lpimage', img);
 
     this.applyPercent($image_temp, img.thumbPercent);
 
     $($image_temp)
         .insertBefore($('.imgup-add-input-container', this.$main_template));
+
+    this.initDeleteButton($button);
     this.$images.push($image_temp);
+};
+
+FileUploaderView.prototype.initDeleteButton = function($button) 
+{
+    var self = this;
+    var index = 0;
+    var $image = null;
+
+    $button.click(function()
+    {
+        if (self.controller.isready())
+        {
+            $image = $.data($button, 'lpparent');
+            index = self.$images.indexOf($image);
+
+            self.deleteImage(index);
+        }
+    });
+};
+
+FileUploaderView.prototype.deleteImage = function(index) 
+{
+    var $image = this.$images[index];
+
+    $image.remove();
+    this.$images.splice(index, 1);
+    this.controller.deleteImage(index);
+
+    this.updateurl();
 };
 
 /**

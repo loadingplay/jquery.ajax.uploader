@@ -50,6 +50,7 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     // img.data = e.target.result;
     img.value = image.value;
     img.url = image.src;
+    img.percentComplete = 100;
 
     if (self.options.thumbnail_origin == 'local')
     {
@@ -239,4 +240,9 @@ FileUploader.prototype.getImagesData = function()
     }
 
     return values;
+};
+
+FileUploader.prototype.deleteImage = function(index) 
+{
+    this.model.splice(index, 1);
 };
