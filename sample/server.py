@@ -33,8 +33,16 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("/static/sample/uploads/" + image_name)
 
 
+class CDNSample(tornado.web.RequestHandler):
+    """sample connecting to Loadingplay's CDN"""
+
+    def get(self):
+        self.render("sample_cdn.html")
+
+
 application = tornado.web.Application([
         (r"/", MainHandler),
+        (r"/cdn", CDNSample)
     ],
     template_path=os.path.dirname(__file__),
     static_path=os.path.join('..'),

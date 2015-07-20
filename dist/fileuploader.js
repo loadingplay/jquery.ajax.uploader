@@ -49,6 +49,7 @@ FileUploader.prototype.addImagePreloading = function(index, image)
         img.data = e.target.result;
         img.value = image.value;
         img.url = image.src;
+        img.uploaded = true;
 
         if (self.options.thumbnail_origin == 'local')
         {
@@ -221,17 +222,20 @@ FileUploader.prototype.getBaseURL = function()
  */
 FileUploader.prototype.getImagesData = function() 
 {
-    var urls = [];
+    var values = [];
     for (var i = 0; i < this.model.length; i++) 
     {
         var image = this.model[i];
         if (image.value !== '')
         {
-            urls.push(image.value);
+            if (typeof(image.value) !== 'string')
+            {
+                values.push(JSON.stringify(image.value));
+            }
         }
     }
 
-    return urls;
+    return values;
 };
 'use strict';
 
@@ -516,6 +520,7 @@ var Waterfall = function()
     this.is_loading = false;
     this.is_uploading = false;
     this.uploading_counter = 0;
+    this.uploaded = false;
 };
 
 Waterfall.prototype.clearImages = function() 
@@ -545,7 +550,10 @@ Waterfall.prototype.loadThumbs = function()
         {
             self.is_loading = false;
             self.loadThumbs();
-            self.upload_images.push(image);
+            if (!image.uploaded)
+            {
+                self.upload_images.push(image);
+            }
 
             self.uploadImages();
         });
