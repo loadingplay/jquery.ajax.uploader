@@ -16,6 +16,9 @@ class MainHandler(tornado.web.RequestHandler):
         image_size = self.get_argument("size", 0)
         image_data = self.get_argument("data", "")
 
+        if image_data == "":
+            image_data = self.request.files['data'][0]['body']
+
         # decode image data
         data = image_data.split(",")
         metadata = data[0]  # data:image/png;base64
@@ -26,15 +29,24 @@ class MainHandler(tornado.web.RequestHandler):
         f.close()
 
         # return image url
+        # self.write({ "thumb":"/static/sample/uploads/" + image_name})
         self.write("/static/sample/uploads/" + image_name)
 
 
+class CDNSample(tornado.web.RequestHandler):
+    """sample connecting to Loadingplay's CDN"""
+
+    def get(self):
+        self.render("sample_cdn.html")
+
+
 application = tornado.web.Application([
-    (r"/", MainHandler),
-],
-template_path=os.path.dirname(__file__),
-static_path=os.path.join('..'),
-debug=True
+        (r"/", MainHandler),
+        (r"/cdn", CDNSample)
+    ],
+    template_path=os.path.dirname(__file__),
+    static_path=os.path.join('..'),
+    debug=True
 )
 
 if __name__ == "__main__":

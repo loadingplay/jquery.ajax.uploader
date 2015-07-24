@@ -23,6 +23,7 @@
 
 .imgup>ul>li>.img-container
 {
+    text-align: center;
     max-height: 100%;  
     max-width: 100%; 
     width: auto;
@@ -58,7 +59,39 @@
 
 .imgup-progress
 {
-    height: 100%;
+    border: gray solid 1px;
+    height: 15px;
+    margin-top: 50%;
+    width: 90%;
+    display: inline-block;
+}
+
+.imgup-progress-bar
+{
     background: black;
-    opacity: 0.3;
+    height: 100%;
+    opacity: 0.2;
+    width: 100%;
+}
+
+.template 
+{
+    display: none;
+}
+
+.red-border>li
+{
+    border: red solid 1px!important;
+}
+
+.caption
+{
+    display: block;
+    position: absolute;
+    text-shadow: 2px 2px white;
+}
+
+.imgup-delete-button
+{
+    position: absolute;
 }
