@@ -27,13 +27,14 @@ module.exports = function(grunt)
         },
 
         watch: {
+            options : { livereload : true },
             js: {
                 files: ['src/**/*.js'],
-                tasks: ['concat']
+                tasks: ['concat:js']
             },
             css: {
                 files: ['css/**/*.css'],
-                tasks: ['concat']
+                tasks: ['concat:css']
             }
         },
 
@@ -52,6 +53,17 @@ module.exports = function(grunt)
             target: {
                 command: 'cd sample && python server.py'
             }
+        },
+
+        express : {
+            all : {
+                options: {
+                    port : 8888,
+                    hostname : 'localhost',
+                    bases : ['.'],
+                    livereload : true
+                }
+            }
         }
 
     });
@@ -60,6 +72,8 @@ module.exports = function(grunt)
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-serve');
+    grunt.loadNpmTasks('grunt-express');
 
     grunt.registerTask('default', ['concat', 'uglify', 'concurrent:serve']);
+    grunt.registerTask('tests', ['express', 'watch']);
 };

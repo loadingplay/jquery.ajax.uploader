@@ -1,105 +1,44 @@
 'use strict';
 
-
-var Waterfall = function()
-{
-    this.images = [];
-    this.upload_images = [];
-    this.is_loading = false;
-    this.is_uploading = false;
-    this.uploading_counter = 0;
-};
-
-Waterfall.prototype.clearImages = function() 
-{
-    this.images = [];
-};
-
-Waterfall.prototype.appendImage = function(image) 
-{
-    if (!image.uploaded)
-    {
-        this.images.push(image);
-        this.loadThumbs();
-    }
-};
-
-Waterfall.prototype.loadThumbs = function() 
-{
-    if (this.is_loading)
-        return;
-
-    var self = this;
-
-    if (this.images.length > 0)
-    {
-        var image = this.images.shift();
-
-        if (!image.uploaded)
-        {
-            this.is_loading = true;
-            image.loadThumb(function()
-            {
-                self.is_loading = false;
-                self.loadThumbs();
-                self.upload_images.push(image);
-
-                self.uploadImages();
-            });
-        }
-
-        return;
-    }
-
-    this.is_loading = false;
-};
-
-Waterfall.prototype.uploadImages = function() 
-{
-    if (this.is_uploading && this.uploading_counter >= 3)
-        return;
-
-    var self = this;
-
-    if (this.upload_images.length > 0)
-    {
-        var image = this.upload_images.shift();
-
-        this.is_uploading = true;
-        this.uploading_counter += 1;
-        image.upload(function()
-        {
-            self.uploading_counter -= 1;
-            self.is_uploading = false;
-            self.uploadImages();
-        });
-
-        return;
-    }
-
-    this.uploading_counter -= 1;
-    this.is_uploading = false;
-};
-
-
 var LPImage = function(data)
 {
-    this.name = data.file.name === undefined ? '' : data.file.name;
-    this.size = data.file.size === undefined ? '' : data.file.size;
-    this.file = data.file;
+    this.name = '';
+    this.size = '';
+    this.file = '';
+
     this.data = '';
     this.value = '';
     this.url = '';
 
     // events
-    this.onthumbprogress = data.onthumbprogress === undefined ? $.noop() : data.onthumbprogress;
-    this.onprogress = data.onprogress === undefined ? $.noop() : data.onprogress;
-    this.onupdateurl = data.onupdateurl === undefined ? $.noop() : data.onupdateurl;
-    this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
-    this.onthumbloaded = data.onthumbloaded === undefined ? $.noop() : data.onthumbloaded;
-    this.response_type = data.response_type === undefined ? 'string' : data.response_type;
-    this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
-    this.uploaded = data.uploaded === undefined ? false : data.uploaded;
+
+    this.onthumbprogress = $.noop;
+    this.onprogress = $.noop;
+    this.onupdateurl = $.noop;
+    this.uploadurl = '/';
+    this.onthumbloaded = $.noop;
+    this.response_type = 'string';
+    this.thumbnail = '';
+    this.uploaded = false;
+
+    if (data !== undefined)
+    {
+        this.file = data.file !== undefined ? data.file : '';
+        if (typeof(this.file) === 'object')
+        {
+            this.name = this.file.name !== undefined ? this.file.name : '';
+            this.size = this.file.size !== undefined ? this.file.size : '';
+        }
+
+        this.onthumbprogress = data.onthumbprogress === undefined ? $.noop : data.onthumbprogress;
+        this.onprogress = data.onprogress === undefined ? $.noop : data.onprogress;
+        this.onupdateurl = data.onupdateurl === undefined ? $.noop : data.onupdateurl;
+        this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
+        this.onthumbloaded = data.onthumbloaded === undefined ? $.noop : data.onthumbloaded;
+        this.response_type = data.response_type === undefined ? 'string' : data.response_type;
+        this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
+        this.uploaded = data.uploaded === undefined ? false : data.uploaded;
+    }
 
     this.thumbPercent = 0;
     this.percentComplete = 0;
@@ -121,6 +60,7 @@ LPImage.prototype.loadThumb = function(callback)
     {
         self.data = e.target.result;
         self.onthumbloaded(self.data);
+
         setTimeout(function()
         {
             callback();
