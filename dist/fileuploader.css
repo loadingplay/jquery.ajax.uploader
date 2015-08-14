@@ -87,8 +87,8 @@
 .caption
 {
     display: block;
+    position: absolute;
     text-shadow: 2px 2px white;
-    float: left;
 }
 
 .imgup-delete-button

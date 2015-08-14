@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Unittest</title>
+    <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
+</head>
+<body>
+
+    <div id="qunit">
+        <!-- overriden values -->
+        <div class="agencia-comision" >50</div>
+    </div>
+
+
+    <div id="qunit-testrunner-toolbar">
+        <span>jQuery Versions: 
+            <input id="version-191" name="version" type="radio" value="1.9.1" />
+            <label for="version-191">jQuery 1.9.1</label>
+            <input id="version-1102" name="version" type="radio" value="1.10.2" />
+            <label for="version-1102">jQuery 1.10.2</label>
+            <input id="version-1111" name="version" type="radio" value="1.11.1" />
+            <label for="version-1111">jQuery 1.11.1</label>
+            <input id="version-latest" name="version" type="radio" value="latest" />
+            <label for="version-latest">jQuery Latest (git)</label>
+        </span>
+    </div>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="/bower_components/qunit/qunit/qunit.js"></script>
+    <script src="jquery.js"></script>
+
+    <!-- incluir codigo a testear -->
+    <script src="/dist/fileuploader.js"></script>
+    <!-- incluir codigo a testear -->
+    <script type="text/javascript" src="image.test.js"></script>
+    <script type="text/javascript" src="waterfall.test.js"></script>
+
+    <script>
+        $(function ()
+        {
+            $("input[name='version']").click(function ()
+            {
+                location.href = "?version=" + $(this).val();
+            });
+
+            var versionPattern = /^[\?|\&]{1}version=(\d{1,2}\.\d{1,2}\.\d{1,2}|latest)/,
+                version = versionPattern.exec(location.search),
+                defaultVersion = "1.11.1";
+
+            if (version != null && version.length > 0)
+            {
+                version = version[1];
+            }
+            else
+            {
+                version = defaultVersion;
+            }
+
+            $("input[value='" + version + "']").attr("checked", "checked");
+        });
+    </script>
+</body>
+</html>
