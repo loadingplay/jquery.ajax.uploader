@@ -27,7 +27,14 @@
         {
             this.each(function()
             {
-                $.data(this, 'plugin_' + pluginName).preloadImages(images);
+                try
+                {
+                    $.data(this, 'plugin_' + pluginName).preloadImages(images);
+                }
+                catch (ex)
+                {
+                    // nothing here
+                }
             });
         }
     };
