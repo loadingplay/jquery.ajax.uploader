@@ -3,8 +3,8 @@
 var FileUploaderTemplates =  // jshint ignore : line
 {
     'imgup-template' : ' \
-        <div class="imgup"> \
-            <ul> \
+        <div class="imgup" name="THEY HATIIN" > \
+            <ul class="img-ulist" name="THEY SEE ME ROOOLLIN"> \
             </ul> \
         </div>',
 
@@ -24,7 +24,13 @@ var FileUploaderTemplates =  // jshint ignore : line
     'imgup-image-add-template' : ' \
         <li class="imgup-add-input-container" > \
             <input type="file" class="imgup-add-input" multiple="multiple" /> \
-        </li>'
+        </li>',
+
+    'imgup-highlight-template' : '\
+        <div class="img-container" > \
+            <img src="{{ src }}" class="imgup-image-biger"/> \
+        </div>\
+    '
 };
 
 
@@ -40,6 +46,7 @@ var FileUploaderView = function(controller)
     this.main_template = '';
     this.img_template = '';
     this.add_img_template = '';
+    this.highlight_template = '';
     this.$images = [];
     this.$main_template = undefined;
 
@@ -89,7 +96,9 @@ FileUploaderView.prototype.addInputEvent = function($input)
  */
 FileUploaderView.prototype.addImage = function(img) 
 {
+    console.log('ADDING!...');
     this.clearImages();
+    var self = this;
     var $image_temp = $(this.img_template);
     var $button = $('.imgup-delete-button', $image_temp);
 
@@ -100,6 +109,44 @@ FileUploaderView.prototype.addImage = function(img)
 
     $($image_temp)
         .insertBefore($('.imgup-add-input-container', this.$main_template));
+
+    //CAMBIO DE VIEW, desaparece lista imagenes y entra la imagen en greande
+    $image_temp.on('click', function()
+    {
+        if (self.controller.isready())
+        {
+            var $div_mayor = $(this).closest('div.imgup');
+            var $ul = $(this).closest('ul.img-ulist');
+            var img_src = $(this).find('img.imgup-image').attr('src');
+
+            $ul.fadeOut('slow', function()
+                {
+                    var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> </div> <button class="done">DONE</button>';
+                    $div_mayor.append(aux_tmp);
+
+                    var $button_done = $div_mayor.find('button.done');
+                    $('#big-img').on('dragstart', function(event)
+                        {
+                            //para que no se arrastre la imagen al fijar el numero
+                            event.preventDefault();
+                        });
+
+                    //Boton para volver al view original -lista de imagenes-
+                    $button_done.on('click', function()
+                    {
+                        var this_button = this;
+
+                        $('#img-container-big').fadeOut('fast');
+                        $(this).fadeOut('fast', function()
+                            {
+                                $('#img-container-big').remove();
+                                this_button.remove();
+                                $ul.fadeIn('fast');
+                            });                        
+                    });
+                });
+        }
+    });
 
     this.initDeleteButton($button);
     this.$images.push($image_temp);
@@ -125,6 +172,7 @@ FileUploaderView.prototype.initDeleteButton = function($button)
 
 FileUploaderView.prototype.deleteImage = function(index) 
 {
+    console.log('DELETING!');
     var $image = this.$images[index];
 
     $image.remove();
@@ -139,6 +187,7 @@ FileUploaderView.prototype.deleteImage = function(index)
  */
 FileUploaderView.prototype.loadTemplates = function() 
 {
+    console.log('loading templates...');
     this.main_template = FileUploaderTemplates['imgup-template'];
     this.img_template = FileUploaderTemplates['imgup-image-template'];
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];

@@ -23,6 +23,10 @@
 
             return ready;
         },
+        somefunction : function()
+        {
+            console.log('class: ' + this.attr('class'));
+        },
         loadimages : function(images)
         {
             this.each(function()
@@ -65,7 +69,6 @@
         {
             settings = method_or_settings;
         }
-
         var options = $.extend( {}, set, settings );
 
         return this.each(function () 

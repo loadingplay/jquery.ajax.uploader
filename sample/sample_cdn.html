@@ -8,13 +8,13 @@
     <h1>File uploader</h1>
 
     <div>
-        <input type="file" name="file" />
+        <input type="file" name="file" class="ass" />
         <div style="clear:both" ></div>
     </div>
     <hr />
 
     <div>
-        <input type="file" name="file-preloaded-multi" />
+        <input type="file" name="file-preloaded-multi" class="ass1"/>
         <div style="clear:both" ></div>
     </div>
     <hr />
@@ -28,6 +28,9 @@
         $("input[name=file]").fileuploader({
             uploadurl : 'https://static.loadingplay.com/image/upload'
         });
+
+        $("input[name=file]").fileuploader('somefunction');
+        //$("input[name=file-preloaded-multi]").fileuploader('somefunction');
 
         $("input[name=file-preloaded-multi]").fileuploader({
             'uploadurl' : 'https://static.loadingplay.com/image/upload',
