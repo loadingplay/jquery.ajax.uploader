@@ -110,43 +110,46 @@ FileUploaderView.prototype.addImage = function(img)
     $($image_temp)
         .insertBefore($('.imgup-add-input-container', this.$main_template));
 
-    //CAMBIO DE VIEW, desaparece lista imagenes y entra la imagen en greande
-    $image_temp.on('click', function()
+    if (this.controller.options.highlight_spot)
     {
-        if (self.controller.isready())
+        //CAMBIO DE VIEW, desaparece lista imagenes y entra la imagen en greande
+        $image_temp.on('click', function()
         {
-            var $div_mayor = $(this).closest('div.imgup');
-            var $ul = $(this).closest('ul.img-ulist');
-            var img_src = $(this).find('img.imgup-image').attr('src');
+            if (self.controller.isready())
+            {
+                var $div_mayor = $(this).closest('div.imgup');
+                var $ul = $(this).closest('ul.img-ulist');
+                var img_src = $(this).find('img.imgup-image').attr('src');
 
-            $ul.fadeOut('slow', function()
-                {
-                    var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> </div> <button class="done">DONE</button>';
-                    $div_mayor.append(aux_tmp);
-
-                    var $button_done = $div_mayor.find('button.done');
-                    $('#big-img').on('dragstart', function(event)
-                        {
-                            //para que no se arrastre la imagen al fijar el numero
-                            event.preventDefault();
-                        });
-
-                    //Boton para volver al view original -lista de imagenes-
-                    $button_done.on('click', function()
+                $ul.fadeOut('slow', function()
                     {
-                        var this_button = this;
+                        var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> </div> <button class="done">DONE</button>';
+                        $div_mayor.append(aux_tmp);
 
-                        $('#img-container-big').fadeOut('fast');
-                        $(this).fadeOut('fast', function()
+                        var $button_done = $div_mayor.find('button.done');
+                        $('#big-img').on('dragstart', function(event)
                             {
-                                $('#img-container-big').remove();
-                                this_button.remove();
-                                $ul.fadeIn('fast');
-                            });                        
+                                //para que no se arrastre la imagen al fijar el numero
+                                event.preventDefault();
+                            });
+
+                        //Boton para volver al view original -lista de imagenes-
+                        $button_done.on('click', function()
+                        {
+                            var this_button = this;
+
+                            $('#img-container-big').fadeOut('fast');
+                            $(this).fadeOut('fast', function()
+                                {
+                                    $('#img-container-big').remove();
+                                    this_button.remove();
+                                    $ul.fadeIn('fast');
+                                });                        
+                        });
                     });
-                });
-        }
-    });
+            }
+        });
+    }
 
     this.initDeleteButton($button);
     this.$images.push($image_temp);

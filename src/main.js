@@ -53,6 +53,7 @@
             thumbnail : '',
             thumbnail_origin : 'local', // remote
             multi : true,
+            highlight_spot: false,
             templates : {
                 list_container_template : '',
                 item_template : '',
