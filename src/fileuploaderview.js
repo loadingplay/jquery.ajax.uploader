@@ -124,7 +124,7 @@ FileUploaderView.prototype.addImage = function(img)
                 var img_src = $img_clicked.attr('src');
                 console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
 
-                $ul.fadeOut('slow', function()
+                $ul.fadeOut('fast', function()
                 {
                     var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> <i id="dot-aim" class="fa fa-cloud tiny" style="color: red; position: absolute;"></i> </div> <button class="done">DONE</button>';
                     $div_mayor.append(aux_tmp);
@@ -177,6 +177,8 @@ FileUploaderView.prototype.addImage = function(img)
                             if(porcentual_y > 100) porcentual_y = 100;
                             if(porcentual_x < 0) porcentual_x = 0;
                             if(porcentual_y < 0) porcentual_y = 0;
+
+                            $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
 
                             console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }
