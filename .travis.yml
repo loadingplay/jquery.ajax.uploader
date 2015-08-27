@@ -1,5 +1,6 @@
 before_script:
   - npm install
+  - npm install -g bower-cli
   - bower install 
 
 script: grunt build --verbose --force
