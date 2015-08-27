@@ -64,6 +64,19 @@ module.exports = function(grunt)
                     livereload : true
                 }
             }
+        },
+
+        qunit : {
+            all: ['tests/index.istanbul.html'],
+            options: {
+                coverage: {
+                  src: ['dist/bodegas.js'],
+                  instrumentedFiles: 'temp/',
+                  htmlReport: 'report/coverage',
+                  coberturaReport: 'report/',
+                  linesThresholdPct: 20
+                }
+            }
         }
 
     });
@@ -75,5 +88,6 @@ module.exports = function(grunt)
     grunt.loadNpmTasks('grunt-express');
 
     grunt.registerTask('default', ['concat', 'uglify', 'concurrent:serve']);
+    grunt.registerTask('build', ['concat', 'uglify', 'qunit']);
     grunt.registerTask('tests', ['express', 'watch']);
 };

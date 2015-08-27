@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "jquery": "~2.1.4",
-    "qunit": "~1.18.0"
+    "qunit": "~1.18.0",
+    "jquery-mockjax": "~2.0.1"
   }
 }

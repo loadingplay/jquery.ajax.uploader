@@ -27,6 +27,7 @@
     </div>
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
+    <script type="text/javascript"></script>
     <script src="jquery.js"></script>
     <script src="../bower_components/jquery-mockjax/dist/jquery.mockjax.js"></script>
     <script src="../bower_components/qunit/qunit/qunit.js"></script>
@@ -34,10 +35,15 @@
     <!-- incluir codigo a testear -->
     <script src="../dist/fileuploader.js"></script>
     <script src="mockjax.init.js"></script>
-    <script type="text/javascript">
-    var DISABLE_ASYNC = false;
-    </script>
     <!-- incluir codigo a testear -->
+    <script type="text/javascript">
+    var Blob = function()
+    {
+        this.type = 'text/plain';
+    };
+
+    var DISABLE_ASYNC = true;
+    </script>
     <script type="text/javascript" src="image.test.js"></script>
     <script type="text/javascript" src="waterfall.test.js"></script>
 

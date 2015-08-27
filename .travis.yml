@@ -1,0 +1,5 @@
+before_script:
+  - npm install
+  - bower install 
+
+script: grunt build --verbose --force
