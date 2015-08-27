@@ -3,18 +3,19 @@
 <head>
     <title></title>
     <link rel="stylesheet" type="text/css" href="/static/dist/fileuploader.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 <body>
     <h1>File uploader</h1>
 
     <div>
-        <input type="file" name="file" class="ass" />
+        <input type="file" name="file" />
         <div style="clear:both" ></div>
     </div>
     <hr />
 
     <div>
-        <input type="file" name="file-preloaded-multi" class="ass1"/>
+        <input type="file" name="file-preloaded-multi" />
         <div style="clear:both" ></div>
     </div>
     <hr />
@@ -26,16 +27,18 @@
     $(document).ready(function()
     {
         $("input[name=file]").fileuploader({
-            uploadurl : 'https://static.loadingplay.com/image/upload'
+            'uploadurl' : 'https://static.loadingplay.com/image/upload',
+            'highlight_spot' : 'true'
         });
 
-        $("input[name=file]").fileuploader('somefunction');
+        //$("input[name=file]").fileuploader('somefunction');
         //$("input[name=file-preloaded-multi]").fileuploader('somefunction');
 
         $("input[name=file-preloaded-multi]").fileuploader({
             'uploadurl' : 'https://static.loadingplay.com/image/upload',
             'thumbnail' : 'thumb_200',
             'thumbnail_origin' : 'remmote',
+            'highlight_spot' : 'true',
             'images' : [
             {
                 name : "foo.png",

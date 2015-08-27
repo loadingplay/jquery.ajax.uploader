@@ -23,10 +23,6 @@
 
             return ready;
         },
-        somefunction : function()
-        {
-            console.log('class: ' + this.attr('class'));
-        },
         loadimages : function(images)
         {
             this.each(function()
