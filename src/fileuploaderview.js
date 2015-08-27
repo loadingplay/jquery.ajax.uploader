@@ -101,6 +101,7 @@ FileUploaderView.prototype.addImage = function(img)
     var self = this;
     var $image_temp = $(this.img_template);
     var $button = $('.imgup-delete-button', $image_temp);
+    var $input = $('.imgup-add-input-container', this.$main_template);
 
     $.data($button, 'lpparent', $image_temp);
     $.data($image_temp, 'lpimage', img);
@@ -108,7 +109,12 @@ FileUploaderView.prototype.addImage = function(img)
     this.applyPercent($image_temp, img.thumbPercent);
 
     $($image_temp)
-        .insertBefore($('.imgup-add-input-container', this.$main_template));
+        .insertBefore($input);
+
+    if (!this.controller.options.multi)
+    {
+        $input.addClass(this.controller.options.hidden_class);
+    }
 
     // HIGHLIGHT --- beginning//
     if (this.controller.options.highlight_spot)
@@ -236,12 +242,18 @@ FileUploaderView.prototype.initDeleteButton = function($button)
 FileUploaderView.prototype.deleteImage = function(index) 
 {
     var $image = this.$images[index];
+    var $input = $('.imgup-add-input-container', this.$main_template);
 
     $image.remove();
     this.$images.splice(index, 1);
     this.controller.deleteImage(index);
 
     this.updateurl();
+
+    if (this.$images.length === 0)
+    {
+        $input.removeClass(this.controller.options.hidden_class);
+    }
 };
 
 /**
@@ -293,6 +305,7 @@ FileUploaderView.prototype.clearImages = function()
  */
 FileUploaderView.prototype.render = function() 
 {
+    var multi = this.controller.options.multi;
     var self = this;
     var $main_temp = $(self.main_template);
     var $input_el = null;
@@ -303,7 +316,7 @@ FileUploaderView.prototype.render = function()
     self.$container.html($main_temp);
 
     $input_el = $('.imgup-add-input', $main_temp);
-    $input_el.attr('multiple', self.controller.options.multi);
+    $input_el.attr('multiple', multi);
 
     self.$main_template = $main_temp;
     self.addInputEvent( $input_el );

@@ -95,3 +95,8 @@
 {
     position: absolute;
 }
+
+.imgup-hidden
+{
+    display: none!important;
+}
