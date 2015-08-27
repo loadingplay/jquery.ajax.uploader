@@ -1,6 +1,24 @@
 # jquery.ajax.uploader
 this is a simple mvc ajax file uploader, ready to work with tornado webserver.
 
+## install and execute
+
+``` sh
+$ npm install
+```
+
+
+```sh
+$ bower install
+```
+
+```sh
+$ grunt
+```
+
+```sh
+$ open http://localhost:8888/
+```
 
 ## Example
 

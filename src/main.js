@@ -52,6 +52,7 @@
             response_type : 'string',
             thumbnail : '',
             thumbnail_origin : 'local', // remote
+            hidden_class : 'imgup-hidden',
             multi : true,
             highlight_spot: false,
             templates : {
