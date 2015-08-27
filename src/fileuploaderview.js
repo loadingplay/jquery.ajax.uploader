@@ -11,7 +11,7 @@ var FileUploaderTemplates =  // jshint ignore : line
     'imgup-image-template' : ' \
         <li> \
             <div class="img-container" > \
-                <img src="" class="imgup-image" /> \
+                <img src="" class="imgup-image" pos-x="50" pos-y="50"/> \
                 <div class="imgup-progress" > \
                     <div class="imgup-progress-bar" ></div> \
                 </div> \
@@ -69,6 +69,7 @@ FileUploaderView.prototype.init = function()
     $input.attr('type', 'text');
     $input.after(this.$container);
     this.render();
+
 };
 
 /**
@@ -96,7 +97,6 @@ FileUploaderView.prototype.addInputEvent = function($input)
  */
 FileUploaderView.prototype.addImage = function(img) 
 {
-    console.log('ADDING!...');
     this.clearImages();
     var self = this;
     var $image_temp = $(this.img_template);
@@ -110,6 +110,7 @@ FileUploaderView.prototype.addImage = function(img)
     $($image_temp)
         .insertBefore($('.imgup-add-input-container', this.$main_template));
 
+    // HIGHLIGHT --- beginning//
     if (this.controller.options.highlight_spot)
     {
         //CAMBIO DE VIEW, desaparece lista imagenes y entra la imagen en greande
@@ -119,37 +120,94 @@ FileUploaderView.prototype.addImage = function(img)
             {
                 var $div_mayor = $(this).closest('div.imgup');
                 var $ul = $(this).closest('ul.img-ulist');
-                var img_src = $(this).find('img.imgup-image').attr('src');
+                var $img_clicked = $(this).find('img.imgup-image');
+                var img_src = $img_clicked.attr('src');
+                console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
 
                 $ul.fadeOut('slow', function()
+                {
+                    var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> <i id="dot-aim" class="fa fa-cloud tiny" style="color: red; position: absolute;"></i> </div> <button class="done">DONE</button>';
+                    $div_mayor.append(aux_tmp);
+                    
+                    var $dot = $('i#dot-aim');
+                    var image_pos = $('img#big-img').position();
+                    var image_height = $('img#big-img').height();
+                    var image_width = $('img#big-img').width();
+                    var porcentual_x = $img_clicked.attr('pos-x');
+                    var porcentual_y = $img_clicked.attr('pos-y');
+                    var DRAGGING = false;
+
+                    var $button_done = $div_mayor.find('button.done');
+
+                    $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
+
+                    $('#big-img').on('dragstart', function(event)
                     {
-                        var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> </div> <button class="done">DONE</button>';
-                        $div_mayor.append(aux_tmp);
-
-                        var $button_done = $div_mayor.find('button.done');
-                        $('#big-img').on('dragstart', function(event)
-                            {
-                                //para que no se arrastre la imagen al fijar el numero
-                                event.preventDefault();
-                            });
-
-                        //Boton para volver al view original -lista de imagenes-
-                        $button_done.on('click', function()
-                        {
-                            var this_button = this;
-
-                            $('#img-container-big').fadeOut('fast');
-                            $(this).fadeOut('fast', function()
-                                {
-                                    $('#img-container-big').remove();
-                                    this_button.remove();
-                                    $ul.fadeIn('fast');
-                                });                        
-                        });
+                        //para que no se arrastre la imagen al fijar el numero
+                        event.preventDefault();
                     });
+
+                    $(document).on('mousemove', function(event)
+                    {
+                        if ( DRAGGING && event.pageY > image_pos.top && event.pageY < (image_pos.top + image_height) ){
+                            if ( event.pageX > image_pos.left && event.pageX < (image_pos.left + image_width) ){
+                                porcentual_x = 100*(event.pageX - image_pos.left)/image_width;
+                                porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
+                                $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
+                                console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                            }
+                        }                      
+                    });
+
+                    $(document).on('mousedown', function(event)
+                    {
+                        if ( event.which == 1 && event.pageY > image_pos.top && event.pageY < (image_pos.top + image_height) ){
+                            if ( event.pageX > image_pos.left && event.pageX < (image_pos.left + image_width) ){
+                                DRAGGING = true;
+                            }
+                        }
+                    });
+
+                    $(document).on('mouseup', function(event)
+                    {
+                        if (event.which == 1 && DRAGGING){
+                            porcentual_x = 100*(event.pageX - image_pos.left)/image_width;
+                            porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
+                            if(porcentual_x > 100) porcentual_x = 100;
+                            if(porcentual_y > 100) porcentual_y = 100;
+                            if(porcentual_x < 0) porcentual_x = 0;
+                            if(porcentual_y < 0) porcentual_y = 0;
+
+                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                        }
+                        DRAGGING = false;
+                    });
+
+                    //Boton para volver al view original -lista de imagenes-
+                    $button_done.on('click', function()
+                    {
+                        var this_button = this;
+
+                        $(document).off('mousemove');
+                        $(document).off('mouseup');
+                        $(document).off('mousedown');
+
+                        $img_clicked.attr('pos-x', porcentual_x);
+                        $img_clicked.attr('pos-y', porcentual_y);
+
+                        $('#img-container-big').fadeOut('fast');
+                        $(this).fadeOut('fast', function()
+                        {
+                            $('#img-container-big').remove();
+                            this_button.remove();
+                            $ul.fadeIn('fast');
+                        });                        
+                    });
+                });
             }
         });
     }
+    // HIGHLIGHT --- end //
 
     this.initDeleteButton($button);
     this.$images.push($image_temp);
@@ -175,7 +233,6 @@ FileUploaderView.prototype.initDeleteButton = function($button)
 
 FileUploaderView.prototype.deleteImage = function(index) 
 {
-    console.log('DELETING!');
     var $image = this.$images[index];
 
     $image.remove();
@@ -190,7 +247,6 @@ FileUploaderView.prototype.deleteImage = function(index)
  */
 FileUploaderView.prototype.loadTemplates = function() 
 {
-    console.log('loading templates...');
     this.main_template = FileUploaderTemplates['imgup-template'];
     this.img_template = FileUploaderTemplates['imgup-image-template'];
     this.add_img_template = FileUploaderTemplates['imgup-image-add-template'];
