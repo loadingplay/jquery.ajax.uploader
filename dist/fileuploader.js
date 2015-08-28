@@ -301,6 +301,7 @@ var FileUploaderView = function(controller)
     this.loadTemplates();
     this.thumbs_loading = [];
     this.is_loading = false;
+    this.fading = false;
 
     this.$container = $('<div class="imageuploader-container" ></div>');
 };
@@ -368,17 +369,18 @@ FileUploaderView.prototype.addImage = function(img)
     if (this.controller.options.highlight_spot)
     {
         //CAMBIO DE VIEW, desaparece lista imagenes y entra la imagen en greande
-        $image_temp.on('click', function()
+        $image_temp.on('click', function(event)
         {
-            if (self.controller.isready())
+            if (!self.fading && self.controller.isready())
             {
+                self.fading = true;
                 var $div_mayor = $(this).closest('div.imgup');
                 var $ul = $(this).closest('ul.img-ulist');
                 var $img_clicked = $(this).find('img.imgup-image');
                 var img_src = $img_clicked.attr('src');
                 console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
 
-                $ul.fadeOut('fast', function()
+                $ul.fadeOut('slow', function()
                 {
                     var aux_tmp = '<div class="img-container" id="img-container-big"> <img id="big-img" src="'+ img_src +'" class="imgup-image-biger"/> <i id="dot-aim" class="fa fa-cloud tiny" style="color: red; position: absolute;"></i> </div> <button class="done">DONE</button>';
                     $div_mayor.append(aux_tmp);
@@ -403,13 +405,15 @@ FileUploaderView.prototype.addImage = function(img)
 
                     $(document).on('mousemove', function(event)
                     {
-                        if ( DRAGGING && event.pageY > image_pos.top && event.pageY < (image_pos.top + image_height) ){
+                        if (DRAGGING){
                             if ( event.pageX > image_pos.left && event.pageX < (image_pos.left + image_width) ){
                                 porcentual_x = 100*(event.pageX - image_pos.left)/image_width;
-                                porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
-                                $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
-                                console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                             }
+                            if ( event.pageY > image_pos.top && event.pageY < (image_pos.top + image_height) ){
+                                porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
+                            }
+                            $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
+                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }                      
                     });
 
@@ -451,6 +455,8 @@ FileUploaderView.prototype.addImage = function(img)
                         $img_clicked.attr('pos-x', porcentual_x);
                         $img_clicked.attr('pos-y', porcentual_y);
 
+                        self.fading = false;
+
                         $('#img-container-big').fadeOut('fast');
                         $(this).fadeOut('fast', function()
                         {
@@ -459,7 +465,7 @@ FileUploaderView.prototype.addImage = function(img)
                             $ul.fadeIn('fast');
                         });                        
                     });
-                });
+                });            
             }
         });
     }
