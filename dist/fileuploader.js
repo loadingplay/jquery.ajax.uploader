@@ -481,8 +481,10 @@ FileUploaderView.prototype.initDeleteButton = function($button)
     var index = 0;
     var $image = null;
 
-    $button.click(function()
+    $button.click(function(e)
     {
+        e.preventDefault();
+
         if (self.controller.isready())
         {
             $image = $.data($button, 'lpparent');
