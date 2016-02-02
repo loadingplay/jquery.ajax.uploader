@@ -1,6 +1,6 @@
 /*global QUnit*/
 /*global Waterfall*/
-/*global LPImage*/
+/*global LPFile*/
 
 'use strict';
 
@@ -29,17 +29,17 @@ QUnit.test('clearImages', function(assert)
 
 QUnit.test('appendImage', function(assert)
 {
-    // LPImage instance shold be added
-    var image = new LPImage();
+    // LPFile instance shold be added
+    var image = new LPFile();
     image.uploaded = false; // image uploaded flag must be set to true
     image.file = image.generateBlob(base64data, 'text/plain', 512);
 
-    assert.ok(waterfall.appendImage(image), 'and instance of LPImage addedd');
+    assert.ok(waterfall.appendImage(image), 'and instance of LPFile addedd');
 
     waterfall.clearImages();
 
-    // should accept only instances of LPImage
+    // should accept only instances of LPFile
     waterfall.appendImage({'foo' : 'foo'});
 
-    assert.equal(waterfall.images.length, 0, 'no LPImage instance can\'t be added');
+    assert.equal(waterfall.images.length, 0, 'no LPFile instance can\'t be added');
 });

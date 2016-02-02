@@ -94,7 +94,7 @@ FileUploaderView.prototype.addInputEvent = function($input)
 
 /**
  * add dom for a given image
- * @param {LPImage} img html is generated with img parameters
+ * @param {LPFile} img html is generated with img parameters
  */
 FileUploaderView.prototype.addImage = function(img) 
 {

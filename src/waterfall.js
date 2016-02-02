@@ -1,4 +1,4 @@
-/*global LPImage*/
+/*global LPFile*/
 'use strict';
 
 
@@ -18,7 +18,7 @@ Waterfall.prototype.clearImages = function()
 
 Waterfall.prototype.appendImage = function(image) 
 {
-    if (!(image instanceof LPImage)) return false;
+    if (!(image instanceof LPFile)) return false;
 
     if (!image.uploaded)
     {

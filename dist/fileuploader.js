@@ -1,5 +1,225 @@
+'use strict';
+
+var LPFile = function(data)
+{
+    this.name = '';
+    this.size = '';
+    this.file = '';
+
+    this.data = '';
+    this.value = '';
+    this.url = '';
+
+    // events
+
+    this.onthumbprogress = $.noop;
+    this.onprogress = $.noop;
+    this.onupdateurl = $.noop;
+    this.uploadurl = '/';
+    this.onthumbloaded = $.noop;
+    this.response_type = 'string';
+    this.thumbnail = '';
+    this.uploaded = false;
+    this.is_pdf = false;
+
+    if (data !== undefined)
+    {
+        this.file = data.file !== undefined ? data.file : '';
+        if (typeof(this.file) === 'object')
+        {
+            this.name = this.file.name !== undefined ? this.file.name : '';
+            this.size = this.file.size !== undefined ? this.file.size : '';
+        }
+
+        this.onthumbprogress = data.onthumbprogress === undefined ? $.noop : data.onthumbprogress;
+        this.onprogress = data.onprogress === undefined ? $.noop : data.onprogress;
+        this.onupdateurl = data.onupdateurl === undefined ? $.noop : data.onupdateurl;
+        this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
+        this.onthumbloaded = data.onthumbloaded === undefined ? $.noop : data.onthumbloaded;
+        this.response_type = data.response_type === undefined ? 'string' : data.response_type;
+        this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
+        this.uploaded = data.uploaded === undefined ? false : data.uploaded;
+
+        console.log(data.support_pdf);
+        if (data.support_pdf)
+            this.is_pdf = LPFile.isPDF(this.name);
+    }
+
+    this.thumbPercent = 0;
+    this.percentComplete = 0;
+
+
+    if (this.thumbnail !== '')
+    {
+        this.response_type = 'json';
+    }
+
+};
+
+LPFile.prototype.loadThumb = function(callback) 
+{
+    var self = this;
+    var reader = new FileReader();
+    var image = this.file;
+
+    reader.onload = function(e) 
+    {
+        self.data = e.target.result;
+        self.onthumbloaded(self.data);
+
+        setTimeout(function()
+        {
+            callback();
+        }, 100);
+    };
+
+    reader.onprogress = function(data)
+    {
+        if (data.lengthComputable)
+        {
+            self.thumbPercent = parseInt((data.loaded / data.total) * 100);
+            self.onthumbprogress(self.thumbPercent);
+            return;
+        }
+
+        self.thumbPercent = 100;
+    };
+
+    reader.readAsDataURL(image);
+};
+
+LPFile.prototype.generateBlob = function(b64Data, contentType, sliceSize) 
+{
+    contentType = contentType || '';
+    sliceSize = sliceSize || 512;
+
+    var byteCharacters = b64Data; // atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        var byteNumbers = new Array(slice.length);
+        for (var i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        var byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+};
+
+LPFile.prototype.upload = function(callback) 
+{
+    var self = this;
+    var data = new FormData();
+    data.append('name', this.name);
+    data.append('size', this.size);
+    data.append('data', this.generateBlob(this.data, 'text/plain', 512));
+
+    $.ajax({
+        contentType: false,
+        processData: false,
+        cache: false,
+        url : self.uploadurl,
+        type: 'POST',
+        xhr : function()
+        {
+            var xhr = $.ajaxSettings.xhr();
+
+            if (xhr.upload) 
+            {
+                xhr.upload.addEventListener('progress', function(event) 
+                {
+                    var position = event.loaded || event.position;
+                    self.percentComplete = Math.ceil(position/event.total * 100);
+                    self.onprogress(self.percentComplete);
+                }, false);
+            }
+            return xhr;
+        },
+        beforeSend : function(xhr, o)
+        {
+            o.data = data;
+        }
+    })
+    .done(function(resp)
+    {
+        self.value = resp;
+        self.onupdateurl(self.getThumbnailURI(resp));
+        callback();
+    });
+
+};
+
+
+LPFile.prototype.getThumbnailURI = function(resp) 
+{
+    if (this.response_type === 'string')
+    {
+        this.url = resp;
+        return resp;
+    }
+    else
+    {
+        if (typeof(resp) !== 'object')
+        {
+            resp = $.parseJSON(resp);
+        }
+        else
+        {
+            this.value = JSON.stringify(resp);
+        }
+        this.url = resp[this.thumbnail];
+        return resp[this.thumbnail];
+    }
+};
+
+LPFile.prototype.getPDFThumbnail = function() 
+{
+    return "https://84static.loadingplay.com/static/images/200_63e0df68422fbcd4404f9b6efebdb3fc_1454400396_pdfs.png";
+};
+
+
+/**
+ * detect if a given text correspond to an image name
+ * @param  {String}  name name of image
+ * @return {Boolean}      true if the image extensions is jpg or png
+ *                        false if any other
+ */
+LPFile.isImage = function(name) 
+{
+    return (name.toLowerCase().indexOf('.jpg') !== -1 ||
+        name.toLowerCase().indexOf('.png') !== -1);
+};
+
+/**
+ * detect if a file is pdf
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .pdf or .PDF
+ */
+LPFile.isPDF = function(name) 
+{
+    return name.toLowerCase().indexOf('.pdf') !== -1
+};
+
+
+/**
+ * detect if a file name is allowed to upload
+ * @param  {String}  name file name with extension included
+ * @return {Boolean}      true if file is pdf, jpg or png
+ */
+LPFile.isAcceptedFile = function(name) 
+{
+    return (LPFile.isImage(name) || LPFile.isPDF(name))
+};
+
 /*global FileUploaderView: true*/
-/*global LPImage: true*/
+/*global LPFile: true*/
 /*global Waterfall: true*/
 'use strict';
 
@@ -28,7 +248,7 @@ var FileUploader = function(obj, options)
  * instantiate an xhr in order to retrieve image data from remote server
  * this method is used to add previously added images.
  * @param {Int} index indicates position of selected images
- * @param {LPImage} image @see : LPImage
+ * @param {LPFile} image @see : LPFile
  */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
@@ -52,24 +272,32 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     img.url = image.src;
     img.percentComplete = 100;
 
-    if (self.options.thumbnail_origin == 'local')
+    if (img.is_pdf)
     {
-        self.view.showThumb(index, img.value);
+        self.view.showThumb(index, img.getPDFThumbnail());
     }
     else
     {
-        var image_src = img.value;
-        if (self.options.thumbnail !== '')
+
+        if (self.options.thumbnail_origin == 'local')
         {
-            if (typeof(img.value) !== 'object')
+            self.view.showThumb(index, img.value);
+        }
+        else
+        {
+            var image_src = img.value;
+            if (self.options.thumbnail !== '')
             {
-                img.value = $.parseJSON(img.value);
+                if (typeof(img.value) !== 'object')
+                {
+                    img.value = $.parseJSON(img.value);
+                }
+
+                image_src = img.value[self.options.thumbnail];
             }
 
-            image_src = img.value[self.options.thumbnail];
+            self.view.showThumb(index, image_src);
         }
-
-        self.view.showThumb(index, image_src);
     }
     self.view.updateurl();
     // };
@@ -98,23 +326,30 @@ FileUploader.prototype.preloadImages = function(images)
 /**
  * add new image to model
  *
- * adds an LPImage object to the list of images to upload
+ * adds an LPFile object to the list of images to upload
  * @param {File} file contains info of the image retrieved from input 
  *
- * @return {LPImage} image from model
+ * @return {LPFile} image from model
  */
 FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
+    var is_accepted_file = LPFile.isAcceptedFile(file.name);
 
-    if (this.isImage(file.name))
+    if (!this.options.support_pdf)
     {
-        var img = new LPImage({
+        is_accepted_file = LPFile.isImage(file.name);
+    }
+
+    if (is_accepted_file)
+    {
+        var img = new LPFile({
             uploaded : is_uploaded,
             file : file,
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
             thumbnail : this.options.thumbnail,
+            support_pdf : this.options.support_pdf,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -130,13 +365,20 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
             onupdateurl : function(url)
             {
                 self.view.updateurl(self.model.indexOf(img), url);
-                if (self.options.thumbnail_origin === 'local')
+                if (img.is_pdf)
                 {
-                    self.view.showThumb(self.model.indexOf(img), img.data);
+                    self.view.showThumb(self.model.indexOf(img), img.getPDFThumbnail());
                 }
                 else
                 {
-                    self.view.showThumb(self.model.indexOf(img), url);
+                    if (self.options.thumbnail_origin === 'local')
+                    {
+                        self.view.showThumb(self.model.indexOf(img), img.data);
+                    }
+                    else
+                    {
+                        self.view.showThumb(self.model.indexOf(img), url);
+                    }
                 }
             },
         });
@@ -156,24 +398,7 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
 };
 
 /**
- * detect if a given text correspond to an image name
- * @param  {String}  name name of image
- * @return {Boolean}      true if the image extensions is jpg or png
- *                        false if any other
- */
-FileUploader.prototype.isImage = function(name) 
-{
-    if (name.toLowerCase().indexOf('.jpg') != -1 ||
-        name.toLowerCase().indexOf('.png') != -1)
-    {
-        return true;
-    }
-
-    return false;
-};
-
-/**
- * return list of LPImage 
+ * return list of LPFile 
  * @return {Array} list of added images
  */
 FileUploader.prototype.getImageList = function() 
@@ -246,6 +471,7 @@ FileUploader.prototype.deleteImage = function(index)
 {
     this.model.splice(index, 1);
 };
+
 'use strict';
 
 var FileUploaderTemplates =  // jshint ignore : line
@@ -342,7 +568,7 @@ FileUploaderView.prototype.addInputEvent = function($input)
 
 /**
  * add dom for a given image
- * @param {LPImage} img html is generated with img parameters
+ * @param {LPFile} img html is generated with img parameters
  */
 FileUploaderView.prototype.addImage = function(img) 
 {
@@ -694,183 +920,7 @@ FileUploaderView.prototype.updateurl = function()
 
     $input.val(urls);
 };
-'use strict';
 
-var LPImage = function(data)
-{
-    this.name = '';
-    this.size = '';
-    this.file = '';
-
-    this.data = '';
-    this.value = '';
-    this.url = '';
-
-    // events
-
-    this.onthumbprogress = $.noop;
-    this.onprogress = $.noop;
-    this.onupdateurl = $.noop;
-    this.uploadurl = '/';
-    this.onthumbloaded = $.noop;
-    this.response_type = 'string';
-    this.thumbnail = '';
-    this.uploaded = false;
-
-    if (data !== undefined)
-    {
-        this.file = data.file !== undefined ? data.file : '';
-        if (typeof(this.file) === 'object')
-        {
-            this.name = this.file.name !== undefined ? this.file.name : '';
-            this.size = this.file.size !== undefined ? this.file.size : '';
-        }
-
-        this.onthumbprogress = data.onthumbprogress === undefined ? $.noop : data.onthumbprogress;
-        this.onprogress = data.onprogress === undefined ? $.noop : data.onprogress;
-        this.onupdateurl = data.onupdateurl === undefined ? $.noop : data.onupdateurl;
-        this.uploadurl = data.uploadurl === undefined ? '/' : data.uploadurl;
-        this.onthumbloaded = data.onthumbloaded === undefined ? $.noop : data.onthumbloaded;
-        this.response_type = data.response_type === undefined ? 'string' : data.response_type;
-        this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
-        this.uploaded = data.uploaded === undefined ? false : data.uploaded;
-    }
-
-    this.thumbPercent = 0;
-    this.percentComplete = 0;
-
-
-    if (this.thumbnail !== '')
-    {
-        this.response_type = 'json';
-    }
-
-};
-
-LPImage.prototype.loadThumb = function(callback) 
-{
-    var self = this;
-    var reader = new FileReader();
-
-    reader.onload = function(e) 
-    {
-        self.data = e.target.result;
-        self.onthumbloaded(self.data);
-
-        setTimeout(function()
-        {
-            callback();
-        }, 100);
-    };
-
-    reader.onprogress = function(data)
-    {
-        if (data.lengthComputable)
-        {
-            self.thumbPercent = parseInt((data.loaded / data.total) * 100);
-            self.onthumbprogress(self.thumbPercent);
-            return;
-        }
-
-        self.thumbPercent = 100;
-    };
-
-    reader.readAsDataURL(this.file);
-};
-
-LPImage.prototype.generateBlob = function(b64Data, contentType, sliceSize) 
-{
-    contentType = contentType || '';
-    sliceSize = sliceSize || 512;
-
-    var byteCharacters = b64Data; // atob(b64Data);
-    var byteArrays = [];
-
-    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        var byteNumbers = new Array(slice.length);
-        for (var i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        var byteArray = new Uint8Array(byteNumbers);
-
-        byteArrays.push(byteArray);
-    }
-
-    var blob = new Blob(byteArrays, {type: contentType});
-    return blob;
-};
-
-LPImage.prototype.upload = function(callback) 
-{
-    var self = this;
-    var data = new FormData();
-    data.append('name', this.name);
-    data.append('size', this.size);
-    data.append('data', this.generateBlob(this.data, 'text/plain', 512));
-
-    $.ajax({
-        contentType: false,
-        processData: false,
-        cache: false,
-        url : self.uploadurl,
-        type: 'POST',
-        xhr : function()
-        {
-            var xhr = $.ajaxSettings.xhr();
-
-            if (xhr.upload) 
-            {
-                xhr.upload.addEventListener('progress', function(event) 
-                {
-                    var position = event.loaded || event.position;
-                    self.percentComplete = Math.ceil(position/event.total * 100);
-                    self.onprogress(self.percentComplete);
-                }, false);
-            }
-            return xhr;
-        },
-        beforeSend : function(xhr, o)
-        {
-            o.data = data;
-        }
-    })
-    .done(function(resp)
-    {
-        self.value = resp;
-
-        self.onupdateurl(self.getThumbnailURI(resp));
-
-        callback();
-
-    });
-
-};
-
-
-LPImage.prototype.getThumbnailURI = function(resp) 
-{
-    if (this.response_type === 'string')
-    {
-        this.url = resp;
-        return resp;
-    }
-    else
-    {
-        if (typeof(resp) !== 'object')
-        {
-            resp = $.parseJSON(resp);
-        }
-        else
-        {
-            this.value = JSON.stringify(resp);
-        }
-        this.url = resp[this.thumbnail];
-        return resp[this.thumbnail];
-    }
-};
 /*global FileUploader */
 /*global FileUploaderTemplates */
 
@@ -924,6 +974,7 @@ LPImage.prototype.getThumbnailURI = function(resp)
             hidden_class : 'imgup-hidden',
             multi : true,
             highlight_spot: false,
+            support_pdf : false,
             templates : {
                 list_container_template : '',
                 item_template : '',
@@ -955,7 +1006,7 @@ LPImage.prototype.getThumbnailURI = function(resp)
 })( jQuery, window, document ); // jshint ignore: line
 
 
-/*global LPImage*/
+/*global LPFile*/
 'use strict';
 
 
@@ -975,7 +1026,7 @@ Waterfall.prototype.clearImages = function()
 
 Waterfall.prototype.appendImage = function(image) 
 {
-    if (!(image instanceof LPImage)) return false;
+    if (!(image instanceof LPFile)) return false;
 
     if (!image.uploaded)
     {

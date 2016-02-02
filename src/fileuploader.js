@@ -1,5 +1,5 @@
 /*global FileUploaderView: true*/
-/*global LPImage: true*/
+/*global LPFile: true*/
 /*global Waterfall: true*/
 'use strict';
 
@@ -28,7 +28,7 @@ var FileUploader = function(obj, options)
  * instantiate an xhr in order to retrieve image data from remote server
  * this method is used to add previously added images.
  * @param {Int} index indicates position of selected images
- * @param {LPImage} image @see : LPImage
+ * @param {LPFile} image @see : LPFile
  */
 FileUploader.prototype.addImagePreloading = function(index, image) 
 {
@@ -52,24 +52,32 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     img.url = image.src;
     img.percentComplete = 100;
 
-    if (self.options.thumbnail_origin == 'local')
+    if (img.is_pdf)
     {
-        self.view.showThumb(index, img.value);
+        self.view.showThumb(index, img.getPDFThumbnail());
     }
     else
     {
-        var image_src = img.value;
-        if (self.options.thumbnail !== '')
+
+        if (self.options.thumbnail_origin == 'local')
         {
-            if (typeof(img.value) !== 'object')
+            self.view.showThumb(index, img.value);
+        }
+        else
+        {
+            var image_src = img.value;
+            if (self.options.thumbnail !== '')
             {
-                img.value = $.parseJSON(img.value);
+                if (typeof(img.value) !== 'object')
+                {
+                    img.value = $.parseJSON(img.value);
+                }
+
+                image_src = img.value[self.options.thumbnail];
             }
 
-            image_src = img.value[self.options.thumbnail];
+            self.view.showThumb(index, image_src);
         }
-
-        self.view.showThumb(index, image_src);
     }
     self.view.updateurl();
     // };
@@ -98,23 +106,30 @@ FileUploader.prototype.preloadImages = function(images)
 /**
  * add new image to model
  *
- * adds an LPImage object to the list of images to upload
+ * adds an LPFile object to the list of images to upload
  * @param {File} file contains info of the image retrieved from input 
  *
- * @return {LPImage} image from model
+ * @return {LPFile} image from model
  */
 FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
+    var is_accepted_file = LPFile.isAcceptedFile(file.name);
 
-    if (this.isImage(file.name))
+    if (!this.options.support_pdf)
     {
-        var img = new LPImage({
+        is_accepted_file = LPFile.isImage(file.name);
+    }
+
+    if (is_accepted_file)
+    {
+        var img = new LPFile({
             uploaded : is_uploaded,
             file : file,
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
             thumbnail : this.options.thumbnail,
+            support_pdf : this.options.support_pdf,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -130,13 +145,20 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
             onupdateurl : function(url)
             {
                 self.view.updateurl(self.model.indexOf(img), url);
-                if (self.options.thumbnail_origin === 'local')
+                if (img.is_pdf)
                 {
-                    self.view.showThumb(self.model.indexOf(img), img.data);
+                    self.view.showThumb(self.model.indexOf(img), img.getPDFThumbnail());
                 }
                 else
                 {
-                    self.view.showThumb(self.model.indexOf(img), url);
+                    if (self.options.thumbnail_origin === 'local')
+                    {
+                        self.view.showThumb(self.model.indexOf(img), img.data);
+                    }
+                    else
+                    {
+                        self.view.showThumb(self.model.indexOf(img), url);
+                    }
                 }
             },
         });
@@ -156,24 +178,7 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
 };
 
 /**
- * detect if a given text correspond to an image name
- * @param  {String}  name name of image
- * @return {Boolean}      true if the image extensions is jpg or png
- *                        false if any other
- */
-FileUploader.prototype.isImage = function(name) 
-{
-    if (name.toLowerCase().indexOf('.jpg') != -1 ||
-        name.toLowerCase().indexOf('.png') != -1)
-    {
-        return true;
-    }
-
-    return false;
-};
-
-/**
- * return list of LPImage 
+ * return list of LPFile 
  * @return {Array} list of added images
  */
 FileUploader.prototype.getImageList = function() 

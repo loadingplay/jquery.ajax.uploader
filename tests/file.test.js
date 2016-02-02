@@ -1,5 +1,5 @@
 /*global QUnit*/
-/*global LPImage*/
+/*global LPFile*/
 
 'use strict';
 
@@ -9,11 +9,11 @@ var base64blobdata = 'data:text/plain;base64,aVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUF
 
 
 QUnit.module(
-    'LPImage', 
+    'LPFile', 
     { 
         setup : function()
         {
-            image = new LPImage();
+            image = new LPFile();
         },
         teardown: function(){}
     });
@@ -75,5 +75,6 @@ QUnit.test('getThumbnailURI', function(assert)
         "foo" : "this is foo",\
         "bar" : "this is bar"\
     }'), 'this is foo', 'get thumbnail from json object, when  json is string');
+
 
 });

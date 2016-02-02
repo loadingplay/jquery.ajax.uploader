@@ -51,6 +51,7 @@
             hidden_class : 'imgup-hidden',
             multi : true,
             highlight_spot: false,
+            support_pdf : false,
             templates : {
                 list_container_template : '',
                 item_template : '',

@@ -38,6 +38,13 @@
         <div style="clear:both" ></div>
     </div>
 
+    <hr />
+
+    <div>
+        <input type="file" name="file-preloaded-multi-pdf" class="preload-multi-pdf" />
+        <div style="clear:both" ></div>
+    </div>
+
     <hr/>
     <div>
         <input type="file" name="file-uploader-templates" />
@@ -129,6 +136,12 @@
                 src : "/static/sample/uploads/bug_2.png",
                 value : "/static/sample/uploads/bug_2.png"
             }]);
+
+
+        $("input[name=file-preloaded-multi-pdf]").fileuploader({
+            support_pdf : true
+        });
+
 
         $("input[name=file-uploader-templates]").fileuploader({
             templates : {

@@ -1,6 +1,6 @@
 'use strict';
 
-var LPImage = function(data)
+var LPFile = function(data)
 {
     this.name = '';
     this.size = '';
@@ -20,6 +20,7 @@ var LPImage = function(data)
     this.response_type = 'string';
     this.thumbnail = '';
     this.uploaded = false;
+    this.is_pdf = false;
 
     if (data !== undefined)
     {
@@ -38,6 +39,10 @@ var LPImage = function(data)
         this.response_type = data.response_type === undefined ? 'string' : data.response_type;
         this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
         this.uploaded = data.uploaded === undefined ? false : data.uploaded;
+
+        console.log(data.support_pdf);
+        if (data.support_pdf)
+            this.is_pdf = LPFile.isPDF(this.name);
     }
 
     this.thumbPercent = 0;
@@ -51,10 +56,11 @@ var LPImage = function(data)
 
 };
 
-LPImage.prototype.loadThumb = function(callback) 
+LPFile.prototype.loadThumb = function(callback) 
 {
     var self = this;
     var reader = new FileReader();
+    var image = this.file;
 
     reader.onload = function(e) 
     {
@@ -79,10 +85,10 @@ LPImage.prototype.loadThumb = function(callback)
         self.thumbPercent = 100;
     };
 
-    reader.readAsDataURL(this.file);
+    reader.readAsDataURL(image);
 };
 
-LPImage.prototype.generateBlob = function(b64Data, contentType, sliceSize) 
+LPFile.prototype.generateBlob = function(b64Data, contentType, sliceSize) 
 {
     contentType = contentType || '';
     sliceSize = sliceSize || 512;
@@ -107,7 +113,7 @@ LPImage.prototype.generateBlob = function(b64Data, contentType, sliceSize)
     return blob;
 };
 
-LPImage.prototype.upload = function(callback) 
+LPFile.prototype.upload = function(callback) 
 {
     var self = this;
     var data = new FormData();
@@ -129,7 +135,7 @@ LPImage.prototype.upload = function(callback)
             {
                 xhr.upload.addEventListener('progress', function(event) 
                 {
-                    var position = event.loaded || event.position;
+                    var position = event.loaded || event.position;
                     self.percentComplete = Math.ceil(position/event.total * 100);
                     self.onprogress(self.percentComplete);
                 }, false);
@@ -144,17 +150,14 @@ LPImage.prototype.upload = function(callback)
     .done(function(resp)
     {
         self.value = resp;
-
         self.onupdateurl(self.getThumbnailURI(resp));
-
         callback();
-
     });
 
 };
 
 
-LPImage.prototype.getThumbnailURI = function(resp) 
+LPFile.prototype.getThumbnailURI = function(resp) 
 {
     if (this.response_type === 'string')
     {
@@ -174,4 +177,43 @@ LPImage.prototype.getThumbnailURI = function(resp)
         this.url = resp[this.thumbnail];
         return resp[this.thumbnail];
     }
+};
+
+LPFile.prototype.getPDFThumbnail = function() 
+{
+    return "https://84static.loadingplay.com/static/images/200_63e0df68422fbcd4404f9b6efebdb3fc_1454400396_pdfs.png";
+};
+
+
+/**
+ * detect if a given text correspond to an image name
+ * @param  {String}  name name of image
+ * @return {Boolean}      true if the image extensions is jpg or png
+ *                        false if any other
+ */
+LPFile.isImage = function(name) 
+{
+    return (name.toLowerCase().indexOf('.jpg') !== -1 ||
+        name.toLowerCase().indexOf('.png') !== -1);
+};
+
+/**
+ * detect if a file is pdf
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .pdf or .PDF
+ */
+LPFile.isPDF = function(name) 
+{
+    return name.toLowerCase().indexOf('.pdf') !== -1
+};
+
+
+/**
+ * detect if a file name is allowed to upload
+ * @param  {String}  name file name with extension included
+ * @return {Boolean}      true if file is pdf, jpg or png
+ */
+LPFile.isAcceptedFile = function(name) 
+{
+    return (LPFile.isImage(name) || LPFile.isPDF(name))
 };
