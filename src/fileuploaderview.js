@@ -42,6 +42,7 @@ var FileUploaderTemplates =  // jshint ignore : line
  */
 var FileUploaderView = function(controller)
 {
+    var self = this;
     this.controller = controller;
     this.main_template = '';
     this.img_template = '';
@@ -56,6 +57,75 @@ var FileUploaderView = function(controller)
     this.fading = false;
 
     this.$container = $('<div class="imageuploader-container" ></div>');
+
+    if (this.controller.options.sortable)
+    {
+        this.initSortable(function(new_order)
+            {
+                self.controller.applySort(new_order);
+                self.updateurl();
+            });
+    }
+};
+
+
+FileUploaderView.prototype.initSortable = function(callback) 
+{
+    var self = this;
+    var selector = 'li:not(.imgup-add-input-container)';
+
+    this.includeJqueryUI(function()
+    {
+
+        // add all index
+        var onSort = function()
+        {
+            var index = 0;
+            $(selector, $(this)).each(function()
+            {
+                if (!$(this).hasClass('ui-sortable-placeholder')) 
+                {
+                    $(this).attr('index', index);
+                    index++;
+                }
+            });
+        };
+
+        // retrive new order for model
+        var onUpdate = function(e)
+        {
+            var new_order = [];
+            $(selector, $(this)).each(function()
+            {
+                var index = parseInt($(this).attr('index'));
+                new_order.push(index);
+            });
+
+            callback(new_order);
+        };
+
+        $('ul.img-ulist', self.$container).sortable({
+            'items' : selector,
+            'sort' : onSort,
+            'update' : onUpdate
+        });
+    });
+};
+
+
+FileUploaderView.prototype.includeJqueryUI = function(callback) 
+{
+    if (jQuery.ui == undefined)
+    {
+        jQuery.getScript('https://code.jquery.com/ui/1.11.4/jquery-ui.js', function()
+        {
+            callback();
+        });
+    }
+    else
+    {
+        callback();
+    }
 };
 
 /**
@@ -130,7 +200,7 @@ FileUploaderView.prototype.addImage = function(img)
                 var $ul = $(this).closest('ul.img-ulist');
                 var $img_clicked = $(this).find('img.imgup-image');
                 var img_src = $img_clicked.attr('src');
-                console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
+                // console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
 
                 $ul.fadeOut('slow', function()
                 {
@@ -165,7 +235,7 @@ FileUploaderView.prototype.addImage = function(img)
                                 porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
                             }
                             $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
-                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                            // console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }                      
                     });
 
@@ -190,7 +260,7 @@ FileUploaderView.prototype.addImage = function(img)
 
                             $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
 
-                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                            // console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }
                         DRAGGING = false;
                     });

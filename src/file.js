@@ -40,7 +40,7 @@ var LPFile = function(data)
         this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
         this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
-        console.log(data.support_pdf);
+        // console.log(data.support_pdf);
         if (data.support_pdf)
             this.is_pdf = LPFile.isPDF(this.name);
     }

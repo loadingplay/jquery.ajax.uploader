@@ -50,6 +50,7 @@
             thumbnail_origin : 'local', // remote
             hidden_class : 'imgup-hidden',
             multi : true,
+            sortable : false,
             highlight_spot: false,
             support_pdf : false,
             templates : {

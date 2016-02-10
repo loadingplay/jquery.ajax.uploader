@@ -26,6 +26,12 @@
     <hr />
 
     <div>
+        <input type="file" name="file-preloaded-multi-sortable" />
+        <div style="clear:both" ></div>
+    </div>
+    <hr />
+
+    <div>
         <input type="file" name="file-preloaded-multi" />
         <div style="clear:both" ></div>
     </div>
@@ -97,6 +103,28 @@
             }],
             multi : false,
             highlight_spot : true
+        });
+
+
+        $("input[name=file-preloaded-multi-sortable]").fileuploader({
+            images : [{
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            },
+            {
+                name : "bug_2.png",
+                src : "/static/sample/uploads/bug_2.png",
+                value : "/static/sample/uploads/bug_2.png"
+            }],
+            multi : true,
+            highlight_spot : true,
+            sortable : true
         });
 
         $("input[name=file-preloaded-multi]").fileuploader({

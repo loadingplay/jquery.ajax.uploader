@@ -40,7 +40,7 @@ var LPFile = function(data)
         this.thumbnail = data.thumbnail === undefined ? 'thumbnail' : data.thumbnail;
         this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
-        console.log(data.support_pdf);
+        // console.log(data.support_pdf);
         if (data.support_pdf)
             this.is_pdf = LPFile.isPDF(this.name);
     }
@@ -240,6 +240,19 @@ var FileUploader = function(obj, options)
     this.view.init();
 
     this.preloadImages(options.images);
+};
+
+FileUploader.prototype.applySort = function(new_order) 
+{
+    var new_model = [];
+
+    for (var i in new_order)
+    {
+        console.log(new_order[i]);
+        new_model.push(this.model[new_order[i]]);
+    }
+
+    this.model = new_model;
 };
 
 /**
@@ -516,6 +529,7 @@ var FileUploaderTemplates =  // jshint ignore : line
  */
 var FileUploaderView = function(controller)
 {
+    var self = this;
     this.controller = controller;
     this.main_template = '';
     this.img_template = '';
@@ -530,6 +544,75 @@ var FileUploaderView = function(controller)
     this.fading = false;
 
     this.$container = $('<div class="imageuploader-container" ></div>');
+
+    if (this.controller.options.sortable)
+    {
+        this.initSortable(function(new_order)
+            {
+                self.controller.applySort(new_order);
+                self.updateurl();
+            });
+    }
+};
+
+
+FileUploaderView.prototype.initSortable = function(callback) 
+{
+    var self = this;
+    var selector = 'li:not(.imgup-add-input-container)';
+
+    this.includeJqueryUI(function()
+    {
+
+        // add all index
+        var onSort = function()
+        {
+            var index = 0;
+            $(selector, $(this)).each(function()
+            {
+                if (!$(this).hasClass('ui-sortable-placeholder')) 
+                {
+                    $(this).attr('index', index);
+                    index++;
+                }
+            });
+        };
+
+        // retrive new order for model
+        var onUpdate = function(e)
+        {
+            var new_order = [];
+            $(selector, $(this)).each(function()
+            {
+                var index = parseInt($(this).attr('index'));
+                new_order.push(index);
+            });
+
+            callback(new_order);
+        };
+
+        $('ul.img-ulist', self.$container).sortable({
+            'items' : selector,
+            'sort' : onSort,
+            'update' : onUpdate
+        });
+    });
+};
+
+
+FileUploaderView.prototype.includeJqueryUI = function(callback) 
+{
+    if (jQuery.ui == undefined)
+    {
+        jQuery.getScript('https://code.jquery.com/ui/1.11.4/jquery-ui.js', function()
+        {
+            callback();
+        });
+    }
+    else
+    {
+        callback();
+    }
 };
 
 /**
@@ -604,7 +687,7 @@ FileUploaderView.prototype.addImage = function(img)
                 var $ul = $(this).closest('ul.img-ulist');
                 var $img_clicked = $(this).find('img.imgup-image');
                 var img_src = $img_clicked.attr('src');
-                console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
+                // console.log('%_x: ' + $img_clicked.attr('pos-x') + '\n%_y: ' + $img_clicked.attr('pos-y') + '\n');
 
                 $ul.fadeOut('slow', function()
                 {
@@ -639,7 +722,7 @@ FileUploaderView.prototype.addImage = function(img)
                                 porcentual_y = 100*(event.pageY - image_pos.top)/image_height;
                             }
                             $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
-                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                            // console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }                      
                     });
 
@@ -664,7 +747,7 @@ FileUploaderView.prototype.addImage = function(img)
 
                             $dot.css({"left": + (image_pos.left - $dot.width()/2 + image_width*porcentual_x*0.01) + "px", "top": + (image_pos.top - $dot.height()/2 + image_height*porcentual_y*0.01) + "px"});
 
-                            console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
+                            // console.log('%_x: ' + porcentual_x + '\n%_y: ' + porcentual_y + '\n');
                         }
                         DRAGGING = false;
                     });
@@ -973,6 +1056,7 @@ FileUploaderView.prototype.updateurl = function()
             thumbnail_origin : 'local', // remote
             hidden_class : 'imgup-hidden',
             multi : true,
+            sortable : false,
             highlight_spot: false,
             support_pdf : false,
             templates : {
@@ -1005,6 +1089,126 @@ FileUploaderView.prototype.updateurl = function()
 
 })( jQuery, window, document ); // jshint ignore: line
 
+
+// /* global jQuery */
+
+// 'use strict';
+
+// (function($)
+// {
+//     var Sortable = function(settings)
+//     {
+//         this.model = settings.model;
+//         this.$elements = '';
+//     };
+
+//     Sortable.prototype.onDrop = function() 
+//     {
+//     };
+
+//     /**
+//      * initialices sortable controller
+//      * @param  {DOMObject} tthis dom object from sortable 
+//      */
+//     Sortable.prototype.init = function(tthis) 
+//     {
+//         var counter = 0;
+//         var self = this;
+
+//         // init positions
+//         this.$elements = $(tthis);
+//         this.$elements.each(function()
+//         {
+//             $(this).attr('o-position', counter);
+//             $(this).bind('sortable-drop', self.onDrop);
+//             counter += 1;
+//         });
+
+//         return this.$elements;
+//     };
+
+//     /**
+//      * return the model ordered by the boxes position
+//      * @return {List} model list with new order
+//      */
+//     Sortable.prototype.getSortedModel = function() 
+//     {
+//         var self = this,
+//             sorted_model = [],
+//             index = 0;
+
+//         this.$elements.each(function()
+//         {
+//             index = $(this).attr('o-position');
+//             sorted_model.push(self.model[index]);
+//         });
+
+//         return sorted_model;
+//     };
+
+//     /**
+//      * move a element to his new position
+//      * @param  {int} old_index box you will move
+//      * @param  {int} new_index box with new index position
+//      */
+//     Sortable.prototype.insertBefore = function(old_index, new_index) 
+//     {
+//         var aux = this.$elements[old_index];
+//         this.$elements.splice(old_index, 1);
+//         this.$elements.splice(new_index, 0, aux);
+//     };
+
+//     Sortable.prototype.addElement = function(html, model) 
+//     {
+//         var $html = $(html);
+
+//         $html.attr('o-position', this.model.length);
+
+//         this.model.push(model);
+//         this.$elements.push($html[0]);
+//     };
+
+//     Sortable.prototype.removeElement = function(index) 
+//     {
+//         this.model = this.model.splice(index, 1);
+//         this.$elements = this.$elements.splice(index, 1);
+
+//         console.log(this.model);
+
+//         this.$elements.each(function()
+//         {
+//             var iindex = $(this).attr('o-position');
+
+//             if (iindex > index)
+//             {
+//                 $(this).attr('o-position', iindex-1);
+//             }
+//         });
+//     };
+
+//     /**
+//      * sortable plugin interface
+//      * @param  {JSON} config 
+//      * @default :
+//      *         {
+//      *             'model' : []
+//      *         }
+//      * @return {Sortable}        singleton of Sortable Class
+//      */
+//     $.fn.sortable = function(config)
+//     {
+//         var defaults = {
+//             'model' : []
+//         };
+//         var settings = $.extend({}, defaults, config);
+//         var o = new Sortable(settings);
+
+//         o.init(this);
+
+//         return o;
+//     };
+
+// })(jQuery);
 
 /*global LPFile*/
 'use strict';

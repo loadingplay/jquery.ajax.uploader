@@ -22,6 +22,19 @@ var FileUploader = function(obj, options)
     this.preloadImages(options.images);
 };
 
+FileUploader.prototype.applySort = function(new_order) 
+{
+    var new_model = [];
+
+    for (var i in new_order)
+    {
+        console.log(new_order[i]);
+        new_model.push(this.model[new_order[i]]);
+    }
+
+    this.model = new_model;
+};
+
 /**
  * preload image
  *
