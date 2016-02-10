@@ -124,7 +124,10 @@ FileUploaderView.prototype.includeJqueryUI = function(callback)
     }
     else
     {
-        callback();
+        setTimeout(function()
+        {
+            callback();
+        }, 1000);
     }
 };
 
