@@ -69,7 +69,7 @@ $(document).ready(function()
 ## All options
 
 
-```json
+```javascript
 {
     base_url : '',
     uploadurl : '/',
