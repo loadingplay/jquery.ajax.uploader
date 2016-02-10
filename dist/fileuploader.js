@@ -233,6 +233,12 @@ var FileUploader = function(obj, options)
     this.$obj = $(obj);
     this.options = options;
     this.waterfall = new Waterfall();
+    this.waterfall.onready = function()
+    {
+        setTimeout(function() {
+            options.onready();
+        }, 500);
+    };
 
     this.model = [];
 
@@ -269,14 +275,6 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     var img = null;
     var blob_image = new Blob();
     blob_image.name = image.name;
-
-    // xhr.open('GET', self.options.base_url + image.src); 
-    // xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
-
-    // xhr.onload = function(e) 
-    // {
-        // blob = xhr.response;//xhr.response is now a blob object
-        // blob.name = image.name;
 
     img = self.addImage(blob_image, true);
 
@@ -334,6 +332,7 @@ FileUploader.prototype.preloadImages = function(images)
         var image = images[i];
         this.addImagePreloading(i, image);
     }
+    this.options.onready();
 };
 
 /**
@@ -551,6 +550,7 @@ var FileUploaderView = function(controller)
             {
                 self.controller.applySort(new_order);
                 self.updateurl();
+                self.controller.options.onready();
             });
     }
 };
@@ -817,6 +817,7 @@ FileUploaderView.prototype.deleteImage = function(index)
     this.controller.deleteImage(index);
 
     this.updateurl();
+    this.controller.options.onready();
 
     if (this.$images.length === 0)
     {
@@ -1062,6 +1063,7 @@ FileUploaderView.prototype.updateurl = function()
             sortable : false,
             highlight_spot: false,
             support_pdf : false,
+            onready : function(){},
             templates : {
                 list_container_template : '',
                 item_template : '',
@@ -1104,6 +1106,7 @@ var Waterfall = function()
     this.is_loading = false;
     this.is_uploading = false;
     this.uploading_counter = 0;
+    this.onready = $.noop;
 };
 
 Waterfall.prototype.clearImages = function() 
@@ -1151,6 +1154,10 @@ Waterfall.prototype.loadThumbs = function()
         }
 
         return;
+    }
+    else
+    {
+        this.onready();
     }
 
     this.is_loading = false;

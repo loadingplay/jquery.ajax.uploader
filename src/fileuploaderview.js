@@ -64,6 +64,7 @@ var FileUploaderView = function(controller)
             {
                 self.controller.applySort(new_order);
                 self.updateurl();
+                self.controller.options.onready();
             });
     }
 };
@@ -330,6 +331,7 @@ FileUploaderView.prototype.deleteImage = function(index)
     this.controller.deleteImage(index);
 
     this.updateurl();
+    this.controller.options.onready();
 
     if (this.$images.length === 0)
     {

@@ -13,6 +13,12 @@ var FileUploader = function(obj, options)
     this.$obj = $(obj);
     this.options = options;
     this.waterfall = new Waterfall();
+    this.waterfall.onready = function()
+    {
+        setTimeout(function() {
+            options.onready();
+        }, 500);
+    };
 
     this.model = [];
 
@@ -49,14 +55,6 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     var img = null;
     var blob_image = new Blob();
     blob_image.name = image.name;
-
-    // xhr.open('GET', self.options.base_url + image.src); 
-    // xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
-
-    // xhr.onload = function(e) 
-    // {
-        // blob = xhr.response;//xhr.response is now a blob object
-        // blob.name = image.name;
 
     img = self.addImage(blob_image, true);
 
@@ -114,6 +112,7 @@ FileUploader.prototype.preloadImages = function(images)
         var image = images[i];
         this.addImagePreloading(i, image);
     }
+    this.options.onready();
 };
 
 /**

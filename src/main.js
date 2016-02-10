@@ -53,6 +53,7 @@
             sortable : false,
             highlight_spot: false,
             support_pdf : false,
+            onready : function(){},
             templates : {
                 list_container_template : '',
                 item_template : '',

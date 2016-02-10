@@ -9,6 +9,7 @@ var Waterfall = function()
     this.is_loading = false;
     this.is_uploading = false;
     this.uploading_counter = 0;
+    this.onready = $.noop;
 };
 
 Waterfall.prototype.clearImages = function() 
@@ -56,6 +57,10 @@ Waterfall.prototype.loadThumbs = function()
         }
 
         return;
+    }
+    else
+    {
+        this.onready();
     }
 
     this.is_loading = false;
