@@ -66,6 +66,30 @@ $(document).ready(function()
 </script>
 ```
 
+## All options
+
+
+```json
+{
+    base_url : '',
+    uploadurl : '/',
+    response_type : 'string',
+    thumbnail : '',
+    thumbnail_origin : 'local', // remote
+    hidden_class : 'imgup-hidden',
+    multi : true,  // disable multi-select
+    sortable : false,  // enable sortable
+    highlight_spot: false,
+    support_pdf : false,  // enables PDF files support
+    templates : {  // html templates
+        list_container_template : '',
+        item_template : '',
+        input_template : ''
+    },
+    images : []  // images to preload
+}
+```
+
 ## Changelog
 
 
