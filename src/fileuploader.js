@@ -34,7 +34,7 @@ FileUploader.prototype.applySort = function(new_order)
 
     for (var i in new_order)
     {
-        console.log(new_order[i]);
+        // console.log(new_order[i]);
         new_model.push(this.model[new_order[i]]);
     }
 
