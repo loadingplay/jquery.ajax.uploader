@@ -627,7 +627,20 @@ FileUploaderView.prototype.init = function()
     var $input = this.controller.getInput();
 
     $input.css('visibility', 'hidden');
-    $input.attr('type', 'text');
+
+    try
+    {
+        $input.attr('type', 'text');
+    }
+    catch (e)
+    {
+        // fix for jquery 1.8.4
+        $input.each(function()
+        {
+            this.type = 'text';
+        });
+    }
+
     $input.after(this.$container);
     this.render();
 
