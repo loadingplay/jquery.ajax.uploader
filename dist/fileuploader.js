@@ -278,6 +278,12 @@ FileUploader.prototype.addImagePreloading = function(index, image)
 
     img = self.addImage(blob_image, true);
 
+    // check if image is not accepted
+    if (img === undefined)
+    {
+        return;
+    }
+
     // img.data = e.target.result;
     img.value = image.value;
     img.url = image.src;
