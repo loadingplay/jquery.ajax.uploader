@@ -52,7 +52,7 @@
             multi : true,
             sortable : false,
             highlight_spot: false,
-            support_pdf : false,
+            files_supported : ".png|.jpg",  // all supported files: ".png|.jpg|.pdf|.doc|.docx"
             onready : function(){},
             templates : {
                 list_container_template : '',
@@ -61,6 +61,19 @@
             },
             images : []
         };
+
+        // support_pdf @deprecated : this section was added for compatibility reasons
+        try
+        {
+            if (set.support_pdf)
+            {
+                set.files_supported += "|.pdf";
+            }
+        }
+        catch (e)
+        {
+            // nothing here...
+        }
 
         if (methods[method_or_settings])
         {

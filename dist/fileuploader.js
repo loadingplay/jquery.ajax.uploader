@@ -21,6 +21,7 @@ var LPFile = function(data)
     this.thumbnail = '';
     this.uploaded = false;
     this.is_pdf = false;
+    this.is_doc = false;
 
     if (data !== undefined)
     {
@@ -41,8 +42,8 @@ var LPFile = function(data)
         this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
         // console.log(data.support_pdf);
-        if (data.support_pdf)
-            this.is_pdf = LPFile.isPDF(this.name);
+        this.is_pdf = LPFile.isPDF(this.name);
+        this.is_doc = LPFile.isDOC(this.name);
     }
 
     this.thumbPercent = 0;
@@ -184,6 +185,11 @@ LPFile.prototype.getPDFThumbnail = function()
     return "https://84static.loadingplay.com/static/images/200_63e0df68422fbcd4404f9b6efebdb3fc_1454400396_pdfs.png";
 };
 
+LPFile.prototype.getDOCThumbnail = function() 
+{
+    return "https://84static.loadingplay.com/static/images/200_ffeb16b005f724fa55b75549ffd0306f_docicon.png";
+};
+
 
 /**
  * detect if a given text correspond to an image name
@@ -207,6 +213,15 @@ LPFile.isPDF = function(name)
     return name.toLowerCase().indexOf('.pdf') !== -1
 };
 
+/**
+ * detect if a file is pdf
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .pdf or .PDF
+ */
+LPFile.isDOC = function(name) 
+{
+    return (name.toLowerCase().indexOf('.doc') !== -1);
+};
 
 /**
  * detect if a file name is allowed to upload
@@ -215,7 +230,7 @@ LPFile.isPDF = function(name)
  */
 LPFile.isAcceptedFile = function(name) 
 {
-    return (LPFile.isImage(name) || LPFile.isPDF(name))
+    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name));
 };
 
 /*global FileUploaderView: true*/
@@ -293,6 +308,10 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     {
         self.view.showThumb(index, img.getPDFThumbnail());
     }
+    else if (img.is_doc)
+    {
+        self.view.showThumb(index, img.getDOCThumbnail());
+    }
     else
     {
 
@@ -341,6 +360,20 @@ FileUploader.prototype.preloadImages = function(images)
     this.options.onready();
 };
 
+
+/**
+ * check if file is a valid format for the user
+ * @param  {String}  file_name the file name
+ * @return {Boolean}           true if the file extension is in options.
+ */
+FileUploader.prototype.isValidFile = function(file_name) 
+{
+    var splitted_name = file_name.split(".");
+    var extension = splitted_name[splitted_name.length-1];
+
+    return this.options.files_supported.indexOf(extension) !== -1;
+};
+
 /**
  * add new image to model
  *
@@ -352,12 +385,7 @@ FileUploader.prototype.preloadImages = function(images)
 FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
-    var is_accepted_file = LPFile.isAcceptedFile(file.name);
-
-    if (!this.options.support_pdf)
-    {
-        is_accepted_file = LPFile.isImage(file.name);
-    }
+    var is_accepted_file = this.isValidFile(file.name) && LPFile.isAcceptedFile(file.name);
 
     if (is_accepted_file)
     {
@@ -367,7 +395,6 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
             thumbnail : this.options.thumbnail,
-            support_pdf : this.options.support_pdf,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -386,6 +413,10 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
                 if (img.is_pdf)
                 {
                     self.view.showThumb(self.model.indexOf(img), img.getPDFThumbnail());
+                }
+                else if (img.is_doc)
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.getDOCThumbnail());
                 }
                 else
                 {
@@ -1081,7 +1112,7 @@ FileUploaderView.prototype.updateurl = function()
             multi : true,
             sortable : false,
             highlight_spot: false,
-            support_pdf : false,
+            files_supported : ".png|.jpg",  // all supported files: ".png|.jpg|.pdf|.doc|.docx"
             onready : function(){},
             templates : {
                 list_container_template : '',
@@ -1090,6 +1121,19 @@ FileUploaderView.prototype.updateurl = function()
             },
             images : []
         };
+
+        // support_pdf @deprecated : this section was added for compatibility reasons
+        try
+        {
+            if (set.support_pdf)
+            {
+                set.files_supported += "|.pdf";
+            }
+        }
+        catch (e)
+        {
+            // nothing here...
+        }
 
         if (methods[method_or_settings])
         {

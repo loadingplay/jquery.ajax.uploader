@@ -22,7 +22,13 @@ class MainHandler(tornado.web.RequestHandler):
         # decode image data
         data = image_data.split(",")
         metadata = data[0]  # data:image/png;base64
-        body = data[1]
+        body = ""
+
+        # sometimes when body data is white
+        try:
+            body = data[1]
+        except:
+            pass
 
         f = open(os.path.join("uploads", image_name), "wb")
         f.write(base64.decodestring(body))

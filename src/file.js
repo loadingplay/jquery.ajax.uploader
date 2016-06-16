@@ -21,6 +21,7 @@ var LPFile = function(data)
     this.thumbnail = '';
     this.uploaded = false;
     this.is_pdf = false;
+    this.is_doc = false;
 
     if (data !== undefined)
     {
@@ -41,8 +42,8 @@ var LPFile = function(data)
         this.uploaded = data.uploaded === undefined ? false : data.uploaded;
 
         // console.log(data.support_pdf);
-        if (data.support_pdf)
-            this.is_pdf = LPFile.isPDF(this.name);
+        this.is_pdf = LPFile.isPDF(this.name);
+        this.is_doc = LPFile.isDOC(this.name);
     }
 
     this.thumbPercent = 0;
@@ -184,6 +185,11 @@ LPFile.prototype.getPDFThumbnail = function()
     return "https://84static.loadingplay.com/static/images/200_63e0df68422fbcd4404f9b6efebdb3fc_1454400396_pdfs.png";
 };
 
+LPFile.prototype.getDOCThumbnail = function() 
+{
+    return "https://84static.loadingplay.com/static/images/200_ffeb16b005f724fa55b75549ffd0306f_docicon.png";
+};
+
 
 /**
  * detect if a given text correspond to an image name
@@ -207,6 +213,15 @@ LPFile.isPDF = function(name)
     return name.toLowerCase().indexOf('.pdf') !== -1
 };
 
+/**
+ * detect if a file is pdf
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .pdf or .PDF
+ */
+LPFile.isDOC = function(name) 
+{
+    return (name.toLowerCase().indexOf('.doc') !== -1);
+};
 
 /**
  * detect if a file name is allowed to upload
@@ -215,5 +230,5 @@ LPFile.isPDF = function(name)
  */
 LPFile.isAcceptedFile = function(name) 
 {
-    return (LPFile.isImage(name) || LPFile.isPDF(name))
+    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name));
 };

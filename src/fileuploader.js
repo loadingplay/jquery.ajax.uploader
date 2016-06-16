@@ -73,6 +73,10 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     {
         self.view.showThumb(index, img.getPDFThumbnail());
     }
+    else if (img.is_doc)
+    {
+        self.view.showThumb(index, img.getDOCThumbnail());
+    }
     else
     {
 
@@ -121,6 +125,20 @@ FileUploader.prototype.preloadImages = function(images)
     this.options.onready();
 };
 
+
+/**
+ * check if file is a valid format for the user
+ * @param  {String}  file_name the file name
+ * @return {Boolean}           true if the file extension is in options.
+ */
+FileUploader.prototype.isValidFile = function(file_name) 
+{
+    var splitted_name = file_name.split(".");
+    var extension = splitted_name[splitted_name.length-1];
+
+    return this.options.files_supported.indexOf(extension) !== -1;
+};
+
 /**
  * add new image to model
  *
@@ -132,12 +150,7 @@ FileUploader.prototype.preloadImages = function(images)
 FileUploader.prototype.addImage = function(file, is_uploaded) 
 {
     var self = this;
-    var is_accepted_file = LPFile.isAcceptedFile(file.name);
-
-    if (!this.options.support_pdf)
-    {
-        is_accepted_file = LPFile.isImage(file.name);
-    }
+    var is_accepted_file = this.isValidFile(file.name) && LPFile.isAcceptedFile(file.name);
 
     if (is_accepted_file)
     {
@@ -147,7 +160,6 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
             uploadurl : this.options.uploadurl,
             response_type : this.options.response_type,
             thumbnail : this.options.thumbnail,
-            support_pdf : this.options.support_pdf,
             onprogress : function(percent)
             {
                 self.view.updateUploadProgress(self.model.indexOf(img), percent);
@@ -166,6 +178,10 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
                 if (img.is_pdf)
                 {
                     self.view.showThumb(self.model.indexOf(img), img.getPDFThumbnail());
+                }
+                else if (img.is_doc)
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.getDOCThumbnail());
                 }
                 else
                 {

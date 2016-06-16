@@ -30,7 +30,8 @@
         //var cdn_url = 'http://localhost:8515/image/upload';
         $("input[name=file]").fileuploader({
             'uploadurl' : cdn_url,
-            'highlight_spot' : 'true'
+            'highlight_spot' : 'true',
+            'files_supported' : '.png|.jpg|.pdf|.doc|.docx',
         });
 
         //$("input[name=file]").fileuploader('somefunction');
@@ -41,7 +42,6 @@
             'thumbnail' : 'thumb_200',
             'thumbnail_origin' : 'remmote',
             'highlight_spot' : 'true',
-            'support_pdf' : true,
             'sortable' : true,
             'images' : [
             {
