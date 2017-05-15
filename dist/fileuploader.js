@@ -369,7 +369,7 @@ FileUploader.prototype.preloadImages = function(images)
 FileUploader.prototype.isValidFile = function(file_name) 
 {
     var splitted_name = file_name.split(".");
-    var extension = splitted_name[splitted_name.length-1];
+    var extension = splitted_name[splitted_name.length-1].toLowerCase();
 
     return this.options.files_supported.indexOf(extension) !== -1;
 };

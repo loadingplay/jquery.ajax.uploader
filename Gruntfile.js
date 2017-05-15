@@ -51,7 +51,7 @@ module.exports = function(grunt)
                 stderr: false
             },
             target: {
-                command: 'cd sample && python server.py'
+                command: ''
             }
         },
 
