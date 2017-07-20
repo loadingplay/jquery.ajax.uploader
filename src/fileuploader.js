@@ -183,6 +183,10 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
                 {
                     self.view.showThumb(self.model.indexOf(img), img.getDOCThumbnail());
                 }
+                else if (img.is_csv)
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.getCSVThumbnail());
+                }
                 else
                 {
                     if (self.options.thumbnail_origin === 'local')

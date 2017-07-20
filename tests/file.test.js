@@ -18,34 +18,30 @@ QUnit.module(
         teardown: function(){}
     });
 
-
-if (!DISABLE_ASYNC)  // @todo: check why with istanbul is not working async test
+QUnit.test('loadThumb', function(assert)
 {
-    QUnit.test('loadThumb', function(assert)
+    var laoded = assert.async();
+    var progress = assert.async();
+    var callback = assert.async();
+
+    image.file = image.generateBlob(base64data, 'text/plain', 512);
+    image.onthumbloaded = function(data)
     {
-        var laoded = assert.async();
-        var progress = assert.async();
-        var callback = assert.async();
+        assert.equal(data, base64blobdata, 'get image encoded');
+        laoded();
+    };
 
-        image.file = image.generateBlob(base64data, 'text/plain', 512);
-        image.onthumbloaded = function(data)
-        {
-            assert.equal(data, base64blobdata, 'get image encoded');
-            laoded();
-        };
-
-        image.onthumbprogress = function(percentage)
-        {
-            assert.equal(percentage, 100, 'on thumb progress');
-            progress();
-        };
-        image.loadThumb(function()
-        {
-            assert.ok(true, 'callback was called');
-            callback();
-        });
+    image.onthumbprogress = function(percentage)
+    {
+        assert.equal(percentage, 100, 'on thumb progress');
+        progress();
+    };
+    image.loadThumb(function()
+    {
+        assert.ok(true, 'callback was called');
+        callback();
     });
-}
+});
 
 QUnit.test('generateBlob', function(assert)
 {

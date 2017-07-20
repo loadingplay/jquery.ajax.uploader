@@ -22,6 +22,7 @@ var LPFile = function(data)
     this.uploaded = false;
     this.is_pdf = false;
     this.is_doc = false;
+    this.is_csv = false;
 
     if (data !== undefined)
     {
@@ -44,6 +45,7 @@ var LPFile = function(data)
         // console.log(data.support_pdf);
         this.is_pdf = LPFile.isPDF(this.name);
         this.is_doc = LPFile.isDOC(this.name);
+        this.is_csv = LPFile.isCSV(this.name);
     }
 
     this.thumbPercent = 0;
@@ -190,6 +192,10 @@ LPFile.prototype.getDOCThumbnail = function()
     return "https://84static.loadingplay.com/static/images/200_ffeb16b005f724fa55b75549ffd0306f_docicon.png";
 };
 
+LPFile.prototype.getCSVThumbnail = function() 
+{
+    return "https://7static.loadingplay.com/static/images/200_f9d12d737ae30a1551fc17479207e838_export_csv.png";
+};
 
 /**
  * detect if a given text correspond to an image name
