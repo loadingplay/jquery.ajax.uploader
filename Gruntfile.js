@@ -67,7 +67,7 @@ module.exports = function(grunt)
         },
 
         qunit : {
-            all: ['tests/index.istanbul.html'],
+            all: ['tests/index.html'],
             options: {
                 coverage: {
                   src: ['dist/bodegas.js'],
@@ -86,6 +86,7 @@ module.exports = function(grunt)
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-serve');
     grunt.loadNpmTasks('grunt-express');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
 
     grunt.registerTask('default', ['concat', 'uglify', 'concurrent:serve']);
     grunt.registerTask('build', ['concat', 'uglify', 'qunit']);

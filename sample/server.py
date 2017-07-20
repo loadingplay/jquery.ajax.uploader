@@ -13,7 +13,6 @@ class MainHandler(tornado.web.RequestHandler):
 
     def post(self):
         image_name = self.get_argument("name", "")
-        image_size = self.get_argument("size", 0)
         image_data = self.get_argument("data", "")
 
         if image_data == "":
@@ -21,14 +20,18 @@ class MainHandler(tornado.web.RequestHandler):
 
         # decode image data
         data = image_data.split(",")
-        metadata = data[0]  # data:image/png;base64
         body = ""
 
         # sometimes when body data is white
         try:
             body = data[1]
-        except:
+        except Exception:
             pass
+
+        try:
+            os.stat("uploads")
+        except Exception:
+            os.mkdir("uploads")
 
         f = open(os.path.join("uploads", image_name), "wb")
         f.write(base64.decodestring(body))

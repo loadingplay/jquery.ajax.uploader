@@ -4,3 +4,4 @@ bower_components/
 sample/uploads
 *pyc
 report
+sample/venv
