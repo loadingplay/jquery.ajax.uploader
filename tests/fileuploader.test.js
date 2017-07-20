@@ -4,6 +4,21 @@
 
 QUnit.module('FileUploader', {});
 
+QUnit.test('isCSV', function(assert) 
+{
+    var $div = $('<div></div>');
+
+    assert.ok(LPFile.isCSV('foo.csv'));
+    assert.ok(LPFile.isCSV('foo.CSV'));
+
+    // isAccepted file
+    assert.ok(LPFile.isAcceptedFile('foo.png'));
+    assert.ok(LPFile.isAcceptedFile('foo.jpg'));
+    assert.ok(LPFile.isAcceptedFile('foo.pdf'));
+    assert.ok(LPFile.isAcceptedFile('foo.csv'));
+    assert.notOk(LPFile.isAcceptedFile('foo.txt'));
+});
+
 QUnit.test('isPDF', function(assert)
 {
     var $div = $('<div></div>');

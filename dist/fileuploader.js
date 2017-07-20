@@ -224,13 +224,23 @@ LPFile.isDOC = function(name)
 };
 
 /**
+ * detect if a file is csv
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .csv or .CSV
+ */
+LPFile.isCSV = function(name) 
+{
+    return (name.toLowerCase().indexOf('.csv') !== -1);
+};
+
+/**
  * detect if a file name is allowed to upload
  * @param  {String}  name file name with extension included
  * @return {Boolean}      true if file is pdf, jpg or png
  */
 LPFile.isAcceptedFile = function(name) 
 {
-    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name));
+    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name) || LPFile.isCSV(name));
 };
 
 /*global FileUploaderView: true*/
