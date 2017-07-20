@@ -77,6 +77,10 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     {
         self.view.showThumb(index, img.getDOCThumbnail());
     }
+    else if (img.is_csv)
+    {
+        self.view.showThumb(index, img.getCSVThumbnail());
+    }
     else
     {
 
