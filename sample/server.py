@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import logging
 import os
 import base64
 import tornado.ioloop
@@ -60,4 +61,5 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     application.listen(8888)
+    logging.info("Running server on port 8888")
     tornado.ioloop.IOLoop.current().start()

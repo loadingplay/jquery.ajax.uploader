@@ -51,7 +51,7 @@ module.exports = function(grunt)
                 stderr: false
             },
             target: {
-                command: 'cd sample/ && source venv/bin/activate && python server.py'
+                command: 'cd sample/ && bash install.sh && bash start.sh'
             }
         },
 

@@ -559,12 +559,12 @@ var FileUploaderTemplates =  // jshint ignore : line
         <li> \
             <div class="img-container" > \
                 <img src="" class="imgup-image" pos-x="50" pos-y="50"/> \
-                <div class="imgup-progress" > \
-                    <div class="imgup-progress-bar" ></div> \
-                </div> \
                 <div>\
                     <a class="imgup-delete-button" href="#!" >x</a>\
                 </div>\
+                <div class="imgup-progress" > \
+                    <div class="imgup-progress-bar" ></div> \
+                </div> \
             </div> \
         </li>',
 
@@ -1040,6 +1040,9 @@ FileUploaderView.prototype.loadingThumbgs = function()
             {
                 if (!img.loaded)
                 {
+                    $('.imgup-progress', self.$images[thumb.index]).css('display', 'none');  // hide progress
+                    $('.imgup-image', self.$images[thumb.index]).addClass('show');
+
                     img.load = $.noop();
                     img.loaded = true;
                     img.css('opacity', '1');
