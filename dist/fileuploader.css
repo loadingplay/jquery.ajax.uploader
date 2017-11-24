@@ -9,6 +9,11 @@
     text-align: left;
 }
 
+.imgup>ul>li * 
+{
+    -webkit-box-sizing: content-box;
+}
+
 .imgup>ul>li
 {
     display: block;
@@ -129,6 +134,13 @@
     padding-bottom: 3px;
     position: relative;
     cursor: pointer;
+}
+
+
+a.imgup-delete-button:hover
+{
+    text-decoration: none;
+    color: #ccc;
 }
 
 .imgup>ul>li:hover .imgup-delete-button
