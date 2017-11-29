@@ -81,6 +81,14 @@ FileUploader.prototype.addImagePreloading = function(index, image)
     {
         self.view.showThumb(index, img.getCSVThumbnail());
     }
+    else if (img.is_xls)
+    {
+        self.view.showThumb(index, img.getXLSThumbnai());
+    }
+    else if (img.is_xlsx)
+    {
+        self.view.showThumb(index, img.getXLSXThumbnail());
+    }
     else
     {
 
@@ -190,6 +198,14 @@ FileUploader.prototype.addImage = function(file, is_uploaded)
                 else if (img.is_csv)
                 {
                     self.view.showThumb(self.model.indexOf(img), img.getCSVThumbnail());
+                }
+                else if (img.is_xls)
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.getXLSThumbnail());
+                }
+                else if (img.is_xlsx)
+                {
+                    self.view.showThumb(self.model.indexOf(img), img.getXLSXThumbnail());
                 }
                 else
                 {

@@ -23,6 +23,8 @@ var LPFile = function(data)
     this.is_pdf = false;
     this.is_doc = false;
     this.is_csv = false;
+    this.is_xls = false;
+    this.is_xlsx = false;
 
     if (data !== undefined)
     {
@@ -46,6 +48,8 @@ var LPFile = function(data)
         this.is_pdf = LPFile.isPDF(this.name);
         this.is_doc = LPFile.isDOC(this.name);
         this.is_csv = LPFile.isCSV(this.name);
+        this.is_xls = LPFile.isXLS(this.name);
+        this.is_xlsx = LPFile.isXLSX(this.name);
     }
 
     this.thumbPercent = 0;
@@ -196,6 +200,14 @@ LPFile.prototype.getCSVThumbnail = function()
 {
     return "https://7static.loadingplay.com/static/images/200_f9d12d737ae30a1551fc17479207e838_export_csv.png";
 };
+LPFile.prototype.getXLSThumbnail = function() 
+{
+    return "https://7static.loadingplay.com/static/images/200_16bd5b8b38ce1e5c3fd550908d9a75dc_xlsx.png";
+};
+LPFile.prototype.getXLSXThumbnail = function() 
+{
+    return "https://7static.loadingplay.com/static/images/200_16bd5b8b38ce1e5c3fd550908d9a75dc_xlsx.png";
+};
 
 /**
  * detect if a given text correspond to an image name
@@ -238,6 +250,24 @@ LPFile.isCSV = function(name)
 {
     return (name.toLowerCase().indexOf('.csv') !== -1);
 };
+/**
+ * detect if a file is xls
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .xls or .XLS
+ */
+LPFile.isXLS = function(name) 
+{
+    return (name.toLowerCase().indexOf('.xls') !== -1);
+};
+/**
+ * detect if a file is xlsx
+ * @param  {Sting}  name file name with extension included
+ * @return {Boolean}      True if the file ends with .xlsx or .XLSX
+ */
+LPFile.isXLSX = function(name) 
+{
+    return (name.toLowerCase().indexOf('.xlsx') !== -1);
+};
 
 /**
  * detect if a file name is allowed to upload
@@ -246,5 +276,5 @@ LPFile.isCSV = function(name)
  */
 LPFile.isAcceptedFile = function(name) 
 {
-    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name) || LPFile.isCSV(name));
+    return (LPFile.isImage(name) || LPFile.isPDF(name) || LPFile.isDOC(name) || LPFile.isCSV(name) || LPFile.isXLS(name) || LPFile.isXLSX(name));
 };
