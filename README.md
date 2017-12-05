@@ -1,4 +1,4 @@
-# jquery.ajax.uploader  [![Build Status](https://travis-ci.org/k1ltr0/jquery.ajax.uploader.svg?branch=master)](https://travis-ci.org/k1ltr0/jquery.ajax.uploader)
+# jquery.ajax.uploader  [![Build Status](https://travis-ci.org/loadingplay/jquery.ajax.uploader.svg?branch=master)](https://travis-ci.org/loadingplay/jquery.ajax.uploader)
 this is a simple mvc ajax file uploader, ready to work with tornado webserver.
 
 ## install and execute
